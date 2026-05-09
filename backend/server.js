@@ -88,6 +88,7 @@ app.use("/api/community",  require("./routes/communityRoutes"));
 app.use("/api/authority",  require("./routes/authorityRoutes"));
 app.use("/api/ngo",        require("./routes/ngoRoutes"));
 app.use("/api/reports",    require("./routes/reportRoutes"));
+app.use("/api/shipments",  require("./routes/shipmentRoutes"));
 app.use("/api/audit",      require("./routes/auditRoutes"));
 app.use("/api/operations", require("./routes/operationsRoutes"));
 

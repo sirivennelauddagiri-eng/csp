@@ -47,7 +47,7 @@ exports.login = async (req, res) => {
 
         // Select only the fields we actually need for login
         const user = await User.findOne({ email })
-            .select("_id name email role password points level xp co2Saved")
+            .select("_id name email role password points level xp co2Saved avatarUrl location")
             .lean();
 
         if (!user) {
@@ -69,9 +69,12 @@ exports.login = async (req, res) => {
             { expiresIn: "7d" }
         );
 
+        // Fetch issues reported count
+        const issuesReported = await require("../models/Issue").countDocuments({ reportedBy: user._id });
+
         // Warm the me-cache immediately so the first /auth/me after login
         // is served from memory rather than hitting the DB again
-        const safeUser = { ...user };
+        const safeUser = { ...user, issuesReported };
         delete safeUser.password;
         meCache.set(String(user._id), { data: safeUser, expiresAt: Date.now() + ME_TTL_MS });
 
@@ -99,6 +102,10 @@ exports.getMe = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // Add issuesReported
+        const issuesReported = await require("../models/Issue").countDocuments({ reportedBy: userId });
+        user.issuesReported = issuesReported;
+
         meCache.set(userId, { data: user, expiresAt: Date.now() + ME_TTL_MS });
         res.json(user);
 
@@ -118,6 +125,8 @@ exports.updateUser = async (req, res) => {
 
         user.name = req.body.name || user.name;
         user.email = req.body.email || user.email;
+        if (req.body.location !== undefined) user.location = req.body.location;
+        if (req.body.avatarUrl !== undefined) user.avatarUrl = req.body.avatarUrl;
 
         if (req.body.password) {
             const salt = await bcrypt.genSalt(10);
@@ -140,6 +149,8 @@ exports.updateUser = async (req, res) => {
             name: updatedUser.name,
             email: updatedUser.email,
             role: updatedUser.role,
+            location: updatedUser.location,
+            avatarUrl: updatedUser.avatarUrl,
             token
         });
 

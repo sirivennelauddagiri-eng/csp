@@ -1,567 +1,356 @@
 <!DOCTYPE html>
-
 <html class="light" lang="en">
-
 <head>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" />
     <meta charset="utf-8" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Rewards &amp; Gamification Dashboard</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#13ec5b",
-                        "background-light": "#f6f8f6",
-                        "background-dark": "#102216",
-                    },
-                    fontFamily: {
-                        "display": ["Public Sans"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
+            theme: { extend: { colors: { "primary": "#13ec5b", "background-light": "#f6f8f6", "background-dark": "#102216" }, fontFamily: { "display": ["Public Sans"] }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" } } }
         }
     </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
-        body {
-            font-family: 'Public Sans', sans-serif;
-        }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { font-family: 'Public Sans', sans-serif; }
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.4s ease-out; }
     </style>
     <script type="module" src="../components/header.js"></script>
 </head>
-
 <body class="bg-background-light dark:bg-background-dark min-h-screen">
-    <div class="flex flex-col w-full">
-        <!-- HEADER (shared component) -->
-        <div id="app-header"></div>
-
-        <main class="flex flex-1 flex-col lg:flex-row lg:px-40 py-8 gap-8">
-            <!-- Left Sidebar: Profile & Stats -->
-            <aside class="w-full lg:w-64 flex flex-col gap-6 px-4 lg:px-0">
-                <div
-                    class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-                    <div class="flex flex-col items-center text-center">
-                        <div class="relative">
-                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-20 mb-4 border-4 border-primary/20"
-                                data-alt="User profile avatar with green border"
-                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA3o6gWAiwfwLtVC546vi-gEFAZIrT5Ghl0nn3Wm_HyxZGOfwRAbJuZOJ7AZOk5QjfU1iB9K7cyd-d9J_AyA7NlsbdFSHr8ddVeZxN_3oTFfmN2HDPSqtQz8i7tHAeT3D6fHC_sAEmid7qBrlL0DYalNT1pBBYkgAXVJNY9l_-8t7s8qOfZnuPOOguBiM9c8nD3ZcWZoQg9k7WxzGZx2Dh6mZ_iu8lca5egmOWyv2qmSoZaqpPDR1B1259RawppwoE0lZAuE4zpWOE");'>
-                            </div>
-                            <div
-                                class="absolute bottom-4 right-0 bg-primary text-background-dark rounded-full size-6 flex items-center justify-center border-2 border-white dark:border-gray-900">
-                                <span class="material-symbols-outlined text-xs font-bold">star</span>
-                            </div>
+<div class="flex flex-col w-full">
+    <div id="app-header"></div>
+    <main class="flex flex-1 flex-col lg:flex-row lg:px-40 py-8 gap-8">
+        <!-- Left Sidebar -->
+        <aside class="w-full lg:w-64 flex flex-col gap-6 px-4 lg:px-0">
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                <div class="flex flex-col items-center text-center">
+                    <div class="relative">
+                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-20 mb-4 border-4 border-primary/20 bg-primary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-4xl">person</span>
                         </div>
-                        <h1 id="userNameHeading" class="text-gray-900 dark:text-white text-lg font-bold">...</h1>
-                        <p id="userLevelDesc" class="text-gray-500 dark:text-gray-400 text-sm">Loading level...</p>
-                        <div class="w-full mt-6 space-y-2">
-                            <div class="flex justify-between text-xs font-semibold dark:text-gray-300">
-                                <span>Level Progress</span>
-                                <span id="levelProgressText">0%</span>
-                            </div>
-                            <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
-                                <div id="levelProgressBar"
-                                    class="bg-primary h-2 rounded-full w-[0%] transition-all duration-1000"></div>
-                            </div>
+                        <div class="absolute bottom-4 right-0 bg-primary text-background-dark rounded-full size-6 flex items-center justify-center border-2 border-white dark:border-gray-900">
+                            <span class="material-symbols-outlined text-xs font-bold">star</span>
                         </div>
                     </div>
-                </div>
-                <nav class="flex flex-col gap-2">
-                    <div
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary border border-primary/20">
-                        <span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
-                        <p class="text-sm font-bold leading-normal">Dashboard</p>
-                    </div>
-                    <a href="impact.html"
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer text-decoration-none">
-                        <span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
-                        <p class="text-sm font-medium leading-normal">Impact Tracking</p>
-                    </a>
-                    <div
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined" data-icon="emoji_events">emoji_events</span>
-                        <p class="text-sm font-medium leading-normal">Achievements</p>
-                    </div>
-                    <div
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
-                        <p class="text-sm font-medium leading-normal">Leaderboard</p>
-                    </div>
-                    <div
-                        class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined" data-icon="settings">settings</span>
-                        <p class="text-sm font-medium leading-normal">Settings</p>
-                    </div>
-                </nav>
-                <div class="bg-gradient-to-br from-primary to-[#0da33e] rounded-xl p-6 text-background-dark shadow-lg">
-                    <p class="text-xs font-bold uppercase tracking-wider mb-2 opacity-80">Next Milestone</p>
-                    <p class="text-lg font-extrabold leading-tight mb-4">Earn 550 more points to plant a real tree!</p>
-                    <button
-                        class="w-full py-2 bg-background-dark text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-opacity-90 transition-all">Start
-                        Task</button>
-                </div>
-            </aside>
-            <!-- Center Content -->
-            <div class="flex-1 flex flex-col gap-6 px-4 lg:px-0">
-                <!-- Page Heading & Quick Stats -->
-                <div class="flex flex-col gap-4">
-                    <div class="flex flex-wrap justify-between items-end gap-4">
-                        <div class="flex flex-col gap-1">
-                            <h2
-                                class="text-gray-900 dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">
-                                Rewards &amp; Gamification</h2>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm">Redeem your hard-earned points for
-                                exclusive eco-discounts.</p>
+                    <h1 id="userNameHeading" class="text-gray-900 dark:text-white text-lg font-bold">...</h1>
+                    <p id="userLevelDesc" class="text-gray-500 dark:text-gray-400 text-sm">Loading level...</p>
+                    <div class="w-full mt-6 space-y-2">
+                        <div class="flex justify-between text-xs font-semibold dark:text-gray-300">
+                            <span>Level Progress</span><span id="levelProgressText">0%</span>
                         </div>
-                        <button
-                            class="flex items-center justify-center gap-2 rounded-lg h-10 px-6 bg-primary text-background-dark text-sm font-bold shadow-sm hover:scale-105 transition-transform">
-                            <span class="material-symbols-outlined text-lg">bolt</span>
-                            <span>Earn More Points</span>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div
-                            class="flex flex-col gap-1 rounded-xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
-                            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
-                                Points Balance</p>
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">toll</span>
-                                <p id="pointsBalance" class="text-gray-900 dark:text-white text-2xl font-black">---</p>
-                            </div>
-                            <p class="text-[#078829] text-xs font-bold">+0 this week</p>
+                        <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+                            <div id="levelProgressBar" class="bg-primary h-2 rounded-full w-0 transition-all duration-1000"></div>
                         </div>
-                        <div
-                            class="flex flex-col gap-1 rounded-xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
-                            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
-                                Impact Level</p>
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">forest</span>
-                                <p id="impactLevel" class="text-gray-900 dark:text-white text-2xl font-black">---</p>
-                            </div>
-                            <p class="text-[#078829] text-xs font-bold">Keep growing</p>
-                        </div>
-                        <div
-                            class="flex flex-col gap-1 rounded-xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
-                            <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">
-                                Global Rank</p>
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">public</span>
-                                <p id="globalRank" class="text-gray-900 dark:text-white text-2xl font-black">---</p>
-                            </div>
-                            <p class="text-[#078829] text-xs font-bold">Top percentage</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Growth Visualization -->
-                <div
-                    class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-blue-50 to-green-50 dark:from-background-dark dark:to-[#1a3a24] border border-gray-200 dark:border-gray-800 p-8 min-h-[340px] flex flex-col justify-between">
-                    <div class="absolute top-0 right-0 p-8">
-                        <div class="flex flex-col items-end">
-                            <span
-                                class="text-xs font-bold text-green-700 dark:text-primary uppercase tracking-widest">Current
-                                Growth</span>
-                            <span class="text-2xl font-black text-gray-900 dark:text-white">Mighty Oak</span>
-                        </div>
-                    </div>
-                    <div class="flex-1 flex items-center justify-center py-6">
-                        <!-- Abstract Tree Representation -->
-                        <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-                            <div class="absolute inset-0 bg-primary/20 rounded-full blur-3xl"></div>
-                            <span
-                                class="material-symbols-outlined text-primary text-[120px] md:text-[180px] drop-shadow-2xl">park</span>
-                            <!-- Achievement Popups -->
-                            <div
-                                class="absolute -top-4 -left-4 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg border border-primary/20 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary text-sm">verified</span>
-                                <span id="treeLevelPopup" class="text-[10px] font-bold dark:text-white">Active
-                                    Growth</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center z-10">
-                        <div class="flex -space-x-3 overflow-hidden">
-                            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-900"
-                                data-alt="User avatar small"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCAzdwjP8Sls3ElVLZEDvUGfJ-LXl4KoNtBqniP5mY7suei_m7qZCO-NrCoWxyCJY28ofTJWzzpHlgCzSl8FEB7sKQMGDCRn6-rJkGSBArWZj_p6BqKVcoOILb8c8ZCyvvaq9URi2_d-mt5uYiAll6Z5y-J9Nb72eX8nJCt4AyaU8rbbJm_bxxpBO00bsPKhamYkmJEbMmKgkijUeZcuqPt4LUfnhoSGKifVZS6aAXH_TdzEOWYbBAOSEQ2yb6Nd2iALS5sgUp6_0" />
-                            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-900"
-                                data-alt="User avatar small"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvemi_MiXeOYcg9O4f6gguTXMmVEgyovvOuYsGTliAJtf9XSeKATDnL5O208GjgNxirU83SeQMwz3pyaQmzpn7AzJSMjdKTrpke2EOeYxYm8pKMf50WV_maDqrJssqAVg-kQ3ambJIQ6OlAn9S75ZeGUsGZxvyPsvtZVIeE_Cln2yh5hwUUdg2Fj09iVPVjNQ6A5N5ZQXeJJjG_izeqzhFemuYJBWmDMLIWsPXeaioK5CobsWY29RmjrJLpX-jvta-ouwi8PW3lds" />
-                            <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-gray-900"
-                                data-alt="User avatar small"
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH8ZBQitk50K8L97u240OHxTPDcr2bQN3uQgX1rZLGw5Dzd_BQQ8oEOR-U2meZmmFz4yyJqnY4lqIjzFj7PtEKJ4QxtxcS3WIycaaXx1hjMZWnZU3QNhRNMal-hQ3kLWToudWiOqsJFDhfYKX8zrJO14FQMxca_OztFuk0Pn1ChvXWkP6LaXN0jQMfGg2JynBECsqoZxH1N3rQOr_Dzgm190_fJdGMIlAAFrZ8KEd5Fq6mxkGoyrt815yfuyGzM4MmcoI7fZZB53Q" />
-                            <div
-                                class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 ring-2 ring-white dark:ring-gray-900">
-                                <span class="text-[10px] font-bold text-gray-600 dark:text-gray-400">+12k</span>
-                            </div>
-                        </div>
-                        <p class="text-xs font-medium text-gray-600 dark:text-gray-400 italic">Growing since October
-                            2023</p>
-                    </div>
-                </div>
-                <!-- Rewards Grid -->
-                <div class="flex flex-col gap-4">
-                    <!-- AI Recommendation Box -->
-                    <div id="aiRecommendationBox"
-                        class="hidden bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-start gap-4 mb-2">
-                        <span class="material-symbols-outlined text-primary text-3xl mt-1">auto_awesome</span>
-                        <div>
-                            <h4 class="text-xs font-black uppercase text-gray-900 dark:text-white tracking-widest mb-1">
-                                AI Smart Suggestion</h4>
-                            <p id="aiRecommendationText" class="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Redeemable Rewards</h3>
-                        <div class="flex gap-2 flex-wrap">
-                            <button onclick="filterRewards('All')"
-                                class="category-btn text-xs font-bold text-primary px-3 py-1 bg-primary/10 rounded-full transition-colors active"
-                                data-category="All">All</button>
-                            <button onclick="filterRewards('Physical')"
-                                class="category-btn text-xs font-bold text-gray-500 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full cursor-pointer transition-colors"
-                                data-category="Physical">Merchandise</button>
-                            <button onclick="filterRewards('Impact')"
-                                class="category-btn text-xs font-bold text-gray-500 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full cursor-pointer transition-colors"
-                                data-category="Impact">Impact</button>
-                            <button onclick="filterRewards('Exclusive')"
-                                class="category-btn text-xs font-bold text-gray-500 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full cursor-pointer transition-colors"
-                                data-category="Exclusive">Exclusive</button>
-                        </div>
-                    </div>
-                    <div id="rewardsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                        <!-- Rewards injected dynamically via JS -->
                     </div>
                 </div>
             </div>
-            <!-- Right Sidebar: Leaderboard & Challenges -->
-            <aside class="w-full lg:w-80 flex flex-col gap-6 px-4 lg:px-0">
-                <!-- Global Leaderboard -->
-                <div
-                    class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Leaderboard</h3>
-                        <span class="text-xs font-bold text-primary hover:underline cursor-pointer">View All</span>
+            <nav class="flex flex-col gap-2">
+                <div class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary border border-primary/20">
+                    <span class="material-symbols-outlined">emoji_events</span>
+                    <p class="text-sm font-bold">Rewards</p>
+                </div>
+                <a href="citizen.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <span class="material-symbols-outlined">grid_view</span>
+                    <p class="text-sm font-medium">Dashboard</p>
+                </a>
+                <a href="impact.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <span class="material-symbols-outlined">trending_up</span>
+                    <p class="text-sm font-medium">Impact Tracking</p>
+                </a>
+                <a href="shipment-tracking.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <span class="material-symbols-outlined">package_2</span>
+                    <p class="text-sm font-medium">My Orders</p>
+                </a>
+            </nav>
+            <div class="bg-gradient-to-br from-primary to-[#0da33e] rounded-xl p-6 text-background-dark shadow-lg">
+                <p class="text-xs font-bold uppercase tracking-wider mb-2 opacity-80">Next Milestone</p>
+                <p class="text-lg font-extrabold leading-tight mb-4">Earn more points to plant a real tree!</p>
+                <a href="citizen.html" class="block w-full py-2 bg-background-dark text-white rounded-lg text-xs font-bold uppercase tracking-widest text-center hover:bg-opacity-90 transition-all">Report Issue</a>
+            </div>
+        </aside>
+
+        <!-- Center Content -->
+        <div class="flex-1 flex flex-col gap-6 px-4 lg:px-0">
+            <!-- Page Heading -->
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-wrap justify-between items-end gap-4">
+                    <div>
+                        <h2 class="text-gray-900 dark:text-white text-3xl font-black leading-tight">Rewards &amp; Gamification</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Redeem your hard-earned points for exclusive eco-rewards.</p>
                     </div>
-                    <div id="leaderboardList" class="flex flex-col gap-4">
-                        <!-- Dynamic Leaderboard Items via JS -->
+                    <div class="flex gap-3">
+                        <a href="shipment-tracking.html" class="flex items-center gap-2 rounded-lg h-10 px-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-bold hover:border-primary/40 hover:text-primary transition-all">
+                            <span class="material-symbols-outlined text-base">package_2</span> My Orders
+                        </a>
+                        <a href="citizen.html" class="flex items-center gap-2 rounded-lg h-10 px-6 bg-primary text-background-dark text-sm font-bold shadow-sm hover:scale-105 transition-transform">
+                            <span class="material-symbols-outlined text-lg">bolt</span> Earn Points
+                        </a>
                     </div>
                 </div>
-                <!-- Daily Challenges -->
-                <div
-                    class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Daily Challenges</h3>
-                    <div id="dailyChallengesList" class="flex flex-col gap-3">
-                        <!-- AI Generated Challenges loaded via JS -->
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="flex flex-col gap-1 rounded-xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">Points Balance</p>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">toll</span>
+                            <p id="pointsBalance" class="text-gray-900 dark:text-white text-2xl font-black">---</p>
+                        </div>
                     </div>
-                </div>
-            </aside>
-        </main>
-        <footer
-            class="mt-auto py-10 px-6 lg:px-40 bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">eco</span>
-                    <span class="font-bold text-gray-900 dark:text-white">CivicAction</span>
-                    <span class="text-gray-400 ml-4 text-sm">© 2024 Environment First Initiative</span>
-                </div>
-                <div class="flex gap-6 text-sm text-gray-500 dark:text-gray-400">
-                    <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
-                    <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
-                    <a class="hover:text-primary transition-colors" href="#">Help Center</a>
+                    <div class="flex flex-col gap-1 rounded-xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">Impact Level</p>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">forest</span>
+                            <p id="impactLevel" class="text-gray-900 dark:text-white text-2xl font-black">---</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1 rounded-xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-widest">Global Rank</p>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">public</span>
+                            <p id="globalRank" class="text-gray-900 dark:text-white text-2xl font-black">---</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </footer>
-    </div>
-    <script type="module">
+
+            <!-- AI Recommendation -->
+            <div id="aiRecommendationBox" class="hidden bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-start gap-4">
+                <span class="material-symbols-outlined text-primary text-3xl mt-1">auto_awesome</span>
+                <div>
+                    <h4 class="text-xs font-black uppercase text-gray-900 dark:text-white tracking-widest mb-1">AI Smart Suggestion</h4>
+                    <p id="aiRecommendationText" class="text-sm text-gray-700 dark:text-gray-300 font-medium"></p>
+                </div>
+            </div>
+
+            <!-- Rewards Grid -->
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Redeemable Rewards</h3>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="filterRewards('All')" class="category-btn text-xs font-bold text-primary px-3 py-1 bg-primary/10 rounded-full transition-colors" data-category="All">All</button>
+                        <button onclick="filterRewards('Physical')" class="category-btn text-xs font-bold text-gray-500 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" data-category="Physical">Merchandise</button>
+                        <button onclick="filterRewards('Impact')" class="category-btn text-xs font-bold text-gray-500 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" data-category="Impact">Impact</button>
+                        <button onclick="filterRewards('Exclusive')" class="category-btn text-xs font-bold text-gray-500 px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" data-category="Exclusive">Exclusive</button>
+                    </div>
+                </div>
+                <div id="rewardsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <aside class="w-full lg:w-80 flex flex-col gap-6 px-4 lg:px-0">
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Leaderboard</h3>
+                    <span class="text-xs font-bold text-primary">Top 3</span>
+                </div>
+                <div id="leaderboardList" class="flex flex-col gap-4"></div>
+            </div>
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Daily Challenges</h3>
+                <div id="dailyChallengesList" class="flex flex-col gap-3"></div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="mt-auto py-10 px-6 lg:px-40 bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">eco</span>
+                <span class="font-bold text-gray-900 dark:text-white">CleanCity</span>
+                <span class="text-gray-400 ml-4 text-sm">© 2024 Environment First Initiative</span>
+            </div>
+            <div class="flex gap-6 text-sm text-gray-500 dark:text-gray-400">
+                <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script type="module">
 import { API_BASE } from '../js/apiConfig.js';
+let currentUserState = null;
 
-        // Store user state globally for quick access
-        let currentUserState = null;
+document.addEventListener("DOMContentLoaded", async () => {
+    const token = localStorage.getItem("token");
+    if (!token) { window.location.href = "../index.html"; return; }
+    try {
+        const res = await fetch(`${API_BASE}/api/rewards/dashboard`, { headers: { "Authorization": `Bearer ${token}` } });
+        if (!res.ok) { if (res.status === 401) { localStorage.removeItem("token"); window.location.href = "../index.html"; } throw new Error("Failed to load dashboard"); }
+        const data = await res.json();
+        currentUserState = data;
+        const userRes = await fetch(`${API_BASE}/api/auth/me`, { headers: { "Authorization": `Bearer ${token}` } });
+        let userName = "Eco Citizen";
+        if (userRes.ok) { const p = await userRes.json(); userName = p.name; }
+        renderDashboard(userName, data, token);
+    } catch (err) {
+        console.error("Dashboard Render Error:", err);
+        document.getElementById("userLevelDesc").textContent = "Error: " + err.message;
+    }
+});
 
-        // Fetch Data on Load
-        document.addEventListener("DOMContentLoaded", async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                window.location.href = "../index.html"; // Redirect if not logged in
-                return;
-            }
+function renderDashboard(userName, data, token) {
+    document.getElementById("userNameHeading").textContent = userName;
+    document.getElementById("userLevelDesc").textContent = `Level ${data.level} Eco Warrior`;
+    document.getElementById("pointsBalance").textContent = data.userPoints.toLocaleString();
+    document.getElementById("impactLevel").textContent = `Level ${data.level}`;
+    document.getElementById("globalRank").textContent = `#${data.rank.toLocaleString()}`;
+    setTimeout(() => {
+        document.getElementById("levelProgressText").textContent = `${data.progress}%`;
+        document.getElementById("levelProgressBar").style.width = `${data.progress}%`;
+    }, 300);
 
-            try {
-                // Fetch full AI gamification dashboard
-                const res = await fetch(`${API_BASE}/api/rewards/dashboard`, {
-                    method: "GET",
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-
-                if (!res.ok) {
-                    if (res.status === 401) {
-                        localStorage.removeItem("token");
-                        window.location.href = "../index.html";
-                    }
-                    throw new Error("Failed to load dashboard data");
-                }
-
-                const data = await res.json();
-                currentUserState = data;
-
-                // Fetch basic user profile for name (could also be returned in dashboard API but this preserves backward compatibility)
-                const userRes = await fetch(`${API_BASE}/api/auth/me`, {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-
-                let userName = "Eco Citizen";
-                if (userRes.ok) {
-                    const profileData = await userRes.json();
-                    userName = profileData.name;
-                }
-
-                renderDashboard(userName, data, token);
-
-            } catch (err) {
-                console.error("Dashboard Render Error:", err);
-                document.getElementById("userLevelDesc").textContent = "Render error. " + err.message;
-                alert("Failed to render gamification dashboard: " + err.message);
-            }
+    // Leaderboard
+    const lbContainer = document.getElementById("leaderboardList");
+    lbContainer.innerHTML = "";
+    const colors = ["text-yellow-500", "text-gray-400", "text-orange-400"];
+    const icons = ["workspace_premium", "", ""];
+    if (data.leaderboard && data.leaderboard.length > 0) {
+        data.leaderboard.forEach((user, i) => {
+            const cc = colors[i] || "text-gray-400";
+            const isCurrent = user.name === userName;
+            const bg = isCurrent ? "bg-primary/10 border border-primary/20 p-2 rounded-lg" : "";
+            lbContainer.innerHTML += `
+            <div class="flex items-center gap-3 ${bg}">
+                <span class="w-4 text-xs font-black ${cc}">${i+1}</span>
+                <div class="size-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 font-bold">${(user.name||"E").charAt(0)}</div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">${user.name||"Eco Citizen"} ${isCurrent ? '(You)' : ''}</p>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold">${(user.totalPointsEarned||0).toLocaleString()} Points</p>
+                </div>
+                ${icons[i] ? `<span class="material-symbols-outlined ${cc}">${icons[i]}</span>` : ""}
+            </div>`;
         });
+    } else { lbContainer.innerHTML = "<p class='text-xs text-gray-400'>Leaderboard empty.</p>"; }
 
-        // 🟢 Core Rendering Function
-        function renderDashboard(userName, data, token) {
-            // 1. Render User Meta
-            document.getElementById("userNameHeading").textContent = userName;
-            document.getElementById("userLevelDesc").textContent = `Level ${data.level} Eco Warrior`;
+    // Challenges
+    const cc = document.getElementById("dailyChallengesList");
+    cc.innerHTML = "";
+    if (data.dailyChallenges && data.dailyChallenges.length > 0) {
+        data.dailyChallenges.forEach(task => {
+            const done = task.status === "completed";
+            cc.innerHTML += `
+            <div onclick="claimTask('${task._id}', ${done})" class="flex items-start gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors relative overflow-hidden group">
+                <span class="material-symbols-outlined ${done ? 'text-primary' : 'text-gray-300'} mt-0.5 z-10">${done ? 'check_circle' : 'circle'}</span>
+                <div class="flex-1 z-10">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white ${done ? 'line-through opacity-50' : ''}">${task.title}</p>
+                    <p class="text-[10px] text-gray-500 ${done ? 'opacity-50' : ''}">+${task.points} Points • AI Recommended</p>
+                </div>
+                ${!done ? '<div class="absolute inset-0 bg-primary/5 translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>' : ''}
+            </div>`;
+        });
+    }
 
-            document.getElementById("pointsBalance").textContent = data.userPoints.toLocaleString();
-            document.getElementById("impactLevel").textContent = `Level ${data.level}`;
-            document.getElementById("globalRank").textContent = `#${data.rank.toLocaleString()}`;
+    if (data.aiRecommendation) {
+        document.getElementById("aiRecommendationBox").classList.remove("hidden");
+        document.getElementById("aiRecommendationText").textContent = data.aiRecommendation;
+    }
+    renderRewardsGrid(data.rewards, data.userPoints, 'All');
+}
 
-            // Render progress bar with nice animation
-            setTimeout(() => {
-                document.getElementById("levelProgressText").textContent = `${data.progress}%`;
-                document.getElementById("levelProgressBar").style.width = `${data.progress}%`;
-            }, 300);
+function filterRewards(category) {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        if (btn.dataset.category === category) { btn.classList.add('text-primary', 'bg-primary/10'); btn.classList.remove('text-gray-500'); }
+        else { btn.classList.remove('text-primary', 'bg-primary/10'); btn.classList.add('text-gray-500'); }
+    });
+    renderRewardsGrid(currentUserState.rewards, currentUserState.userPoints, category);
+}
 
-            let treePhase = "Sprout";
-            if (data.level > 5) treePhase = "Sapling";
-            if (data.level > 10) treePhase = "Mighty Oak";
-            document.getElementById("treeLevelPopup").textContent = `Lvl ${data.level} ${treePhase}`;
+function renderRewardsGrid(rewards, userPoints, filterCategory) {
+    const grid = document.getElementById("rewardsGrid");
+    grid.innerHTML = "";
+    if (!rewards || rewards.length === 0) return;
+    rewards.forEach(reward => {
+        if (filterCategory !== 'All' && reward.rewardType !== filterCategory) return;
+        const isLocked = userPoints < reward.pointsRequired;
+        const diff = reward.pointsRequired - userPoints;
+        const opacityClass = isLocked ? "opacity-60 grayscale" : "hover:shadow-md cursor-pointer";
+        const btnClass = isLocked ? "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed" : "bg-primary text-background-dark hover:bg-primary/90 transition-colors shadow-sm cursor-pointer";
+        const btnText = isLocked ? `Need ${diff.toLocaleString()} more pts` : (reward.rewardType === 'Physical' ? '🚚 Redeem & Ship' : 'Redeem');
+        const extraLabel = reward.co2Impact
+            ? `<span class="material-symbols-outlined text-[10px] mr-1 inline-block align-middle">co2</span>${reward.co2Impact}`
+            : `<span class="material-symbols-outlined text-[10px] mr-1 inline-block align-middle">local_shipping</span>${reward.deliveryType || 'Standard'}`;
+        grid.innerHTML += `
+        <div class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm transition-all ${opacityClass} flex flex-col h-full animate-slide-up">
+            <div class="h-32 bg-cover bg-center" style='background-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5)), url("${reward.image || 'https://via.placeholder.com/400x200?text=Eco+Reward'}");'></div>
+            <div class="p-4 flex flex-col gap-3 relative bg-white dark:bg-gray-900 z-10 flex-1">
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-gray-900 dark:text-white leading-tight">${reward.title}</h4>
+                        <span class="text-[9px] px-2 py-0.5 whitespace-nowrap rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase shrink-0">${reward.rewardType}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">${reward.description}</p>
+                </div>
+                <p class="text-[10px] font-bold text-gray-400 mt-auto uppercase tracking-wide">${extraLabel} ${reward.stock ? `<span class="float-right">${reward.stock} Left</span>` : ''}</p>
+                <div class="flex flex-wrap items-center justify-between gap-y-2 mt-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <div class="flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm ${isLocked ? 'text-gray-400' : 'text-primary'}">toll</span>
+                        <span class="text-sm font-black tracking-tight ${isLocked ? 'text-gray-400' : 'text-gray-900 dark:text-white'}">${reward.pointsRequired.toLocaleString()} pts</span>
+                    </div>
+                    <button onclick="redeemReward('${reward._id}', ${reward.pointsRequired}, '${reward.title.replace(/'/g,"\\'")}', '${reward.rewardType}')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto text-center ${btnClass}" ${isLocked ? 'disabled' : ''}>
+                        ${btnText}
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    });
+}
 
-            // 2. Render Leaderboard
-            const lbContainer = document.getElementById("leaderboardList");
-            lbContainer.innerHTML = "";
-            const colors = ["text-yellow-500", "text-gray-400", "text-orange-400"];
-            const icons = ["workspace_premium", "", ""];
+async function claimTask(taskId, isCompleted) {
+    if (isCompleted) return;
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(`${API_BASE}/api/rewards/claim-task`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ taskId })
+        });
+        const data = await res.json();
+        if (data.success) { showToast(`✅ Earned ${data.pointsEarned} points!`, 'success'); setTimeout(() => window.location.reload(), 1500); }
+        else alert(data.message || "Failed to claim task");
+    } catch (err) { console.error(err); }
+}
 
-            if (data.leaderboard && data.leaderboard.length > 0) {
-                data.leaderboard.forEach((user, index) => {
-                    const colorClass = colors[index] || "text-gray-400";
-                    const isCurrentUser = user.name === userName;
-                    const bgClass = isCurrentUser ? "bg-primary/10 border border-primary/20 p-2 rounded-lg" : "";
+async function redeemReward(rewardId, cost, title, rewardType) {
+    if (rewardType && rewardType.toLowerCase() === 'physical') {
+        const params = new URLSearchParams({ rewardId, title: title, type: rewardType, points: cost });
+        window.location.href = `shipment-checkout.html?${params.toString()}`;
+        return;
+    }
+    if (!confirm(`Redeem "${title}" for ${cost.toLocaleString()} points?`)) return;
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(`${API_BASE}/api/rewards/redeem`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ rewardId })
+        });
+        const data = await res.json();
+        if (data.success) { showToast(`🎉 "${title}" redeemed! Balance: ${data.remainingPoints} pts`, 'success'); setTimeout(() => window.location.reload(), 2000); }
+        else alert(`❌ Failed: ${data.message}`);
+    } catch (err) { alert("An error occurred while redeeming."); }
+}
 
-                    const safeUserPoints = user.totalPointsEarned || 0;
+function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.className = `fixed bottom-6 right-6 z-[999] px-5 py-4 rounded-2xl shadow-2xl text-sm font-bold border animate-slide-up max-w-xs ${type === 'success' ? 'bg-white dark:bg-gray-900 border-primary/30 text-gray-900 dark:text-white' : 'bg-red-50 border-red-200 text-red-700'}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.5s'; setTimeout(() => t.remove(), 500); }, 3000);
+}
 
-                    lbContainer.innerHTML += `
-                        <div class="flex items-center gap-3 ${bgClass}">
-                            <span class="w-4 text-xs font-black ${colorClass}">${index + 1}</span>
-                            <div class="size-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 font-bold">
-                                ${(user.name || "E").charAt(0)}
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-bold text-gray-900 dark:text-white">${user.name || "Eco Citizen"} ${isCurrentUser ? '(You)' : ''}</p>
-                                <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-widest">${safeUserPoints.toLocaleString()} Points</p>
-                            </div>
-                            ${icons[index] ? `<span class="material-symbols-outlined ${colorClass}">${icons[index]}</span>` : ""}
-                        </div>
-                    `;
-                });
-            } else {
-                lbContainer.innerHTML = "<p class='text-xs text-gray-400'>Leaderboard empty.</p>";
-            }
-
-            // 3. Render AI Daily Challenges
-            const challengesContainer = document.getElementById("dailyChallengesList");
-            challengesContainer.innerHTML = "";
-            if (data.dailyChallenges && data.dailyChallenges.length > 0) {
-                data.dailyChallenges.forEach(task => {
-                    const isCompleted = task.status === "completed";
-                    const iconColor = isCompleted ? "text-primary" : "text-gray-300";
-                    const iconName = isCompleted ? "check_circle" : "circle";
-
-                    challengesContainer.innerHTML += `
-                        <div onclick="claimTask('${task._id}', ${isCompleted})" class="flex items-start gap-3 p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors relative overflow-hidden group">
-                            <div class="mt-0.5 z-10">
-                                <span class="material-symbols-outlined ${iconColor}" id="icon-${task._id}">${iconName}</span>
-                            </div>
-                            <div class="flex-1 z-10">
-                                <p class="text-sm font-bold text-gray-900 dark:text-white leading-tight ${isCompleted ? 'line-through opacity-50' : ''}">${task.title}</p>
-                                <p class="text-[10px] text-gray-500 dark:text-gray-400 ${isCompleted ? 'opacity-50' : ''}">+${task.points} Points • AI Recommended</p>
-                            </div>
-                            ${!isCompleted ? `<div class="absolute inset-0 bg-primary/5 translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>` : ''}
-                        </div>
-                    `;
-                });
-            }
-
-            // 4. Render AI Reward Recommendation
-            if (data.aiRecommendation) {
-                document.getElementById("aiRecommendationBox").classList.remove("hidden");
-                document.getElementById("aiRecommendationText").textContent = data.aiRecommendation;
-            }
-
-            // 5. Render Rewards
-            renderRewardsGrid(data.rewards, data.userPoints, 'All');
-        }
-
-        function filterRewards(category) {
-            // Update active button styles
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                if (btn.dataset.category === category) {
-                    btn.classList.add('text-primary', 'bg-primary/10');
-                    btn.classList.remove('text-gray-500');
-                } else {
-                    btn.classList.remove('text-primary', 'bg-primary/10');
-                    btn.classList.add('text-gray-500');
-                }
-            });
-
-            // Re-render grid
-            renderRewardsGrid(currentUserState.rewards, currentUserState.userPoints, category);
-        }
-
-        function renderRewardsGrid(rewards, userPoints, filterCategory) {
-            const rewardsGrid = document.getElementById("rewardsGrid");
-            rewardsGrid.innerHTML = "";
-            if (rewards && rewards.length > 0) {
-                rewards.forEach(reward => {
-                    // Filter Logic
-                    if (filterCategory !== 'All' && reward.rewardType !== filterCategory) return;
-
-                    const isLocked = userPoints < reward.pointsRequired;
-                    const diff = reward.pointsRequired - userPoints;
-                    const opacityClass = isLocked ? "opacity-60 grayscale" : "group hover:shadow-md cursor-pointer";
-                    const btnClass = isLocked
-                        ? "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
-                        : "bg-primary text-background-dark hover:bg-primary/90 transition-colors shadow-sm cursor-pointer";
-                    const btnText = isLocked ? `Need ${diff.toLocaleString()} more pts` : "Redeem";
-
-                    const extraLabel = reward.co2Impact
-                        ? `<span class="material-symbols-outlined text-[10px] mr-1 inline-block align-middle">co2</span>${reward.co2Impact}`
-                        : `<span class="material-symbols-outlined text-[10px] mr-1 inline-block align-middle">local_shipping</span>${reward.deliveryType || 'Standard'}`;
-
-                    rewardsGrid.innerHTML += `
-                        <div class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm transition-all ${opacityClass} flex flex-col h-full">
-                            <div class="h-32 bg-cover bg-center transition-transform hover:scale-105" 
-                                style='background-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5)), url("${reward.image || 'https://via.placeholder.com/400x200?text=Eco+Reward'}");'>
-                            </div>
-                            <div class="p-4 flex flex-col gap-3 relative bg-white dark:bg-gray-900 z-10 flex-1">
-                                <div>
-                                    <div class="flex justify-between items-start mb-2">
-                                        <h4 class="font-bold text-gray-900 dark:text-white leading-tight">${reward.title}</h4>
-                                        <span class="text-[9px] px-2 py-0.5 whitespace-nowrap rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase shrink-0">${reward.rewardType}</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">${reward.description}</p>
-                                </div>
-                                <p class="text-[10px] font-bold text-gray-400 mt-auto uppercase tracking-wide">
-                                    ${extraLabel} ${reward.stock ? `<span class="float-right">${reward.stock} Left</span>` : ''}
-                                </p>
-                                <div class="flex flex-wrap items-center justify-between gap-y-2 mt-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-                                    <div class="flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-sm ${isLocked ? 'text-gray-400' : 'text-primary'}">toll</span>
-                                        <span class="text-sm font-black tracking-tight ${isLocked ? 'text-gray-400' : 'text-gray-900 dark:text-white'}">${reward.pointsRequired.toLocaleString()} pts</span>
-                                    </div>
-                                    <button onclick="redeemReward('${reward._id}', ${reward.pointsRequired}, '${reward.title}', '${reward.rewardType}')" class="px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto text-center ${btnClass}" ${isLocked ? 'disabled' : ''}>
-                                        ${btnText}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-        }
-
-        // 🟢 Interaction: Claim Task
-        async function claimTask(taskId, isCompleted) {
-            if (isCompleted) return;
-
-            const token = localStorage.getItem("token");
-            try {
-                const res = await fetch(`${API_BASE}/api/rewards/claim-task`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ taskId })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    alert(`✅ Task completed! You earned ${data.pointsEarned} points!`);
-                    window.location.reload(); // Reload to refresh progress visually
-                } else {
-                    alert(data.message || "Failed to claim task");
-                }
-            } catch (err) {
-                alert("An error occurred");
-                console.error(err);
-            }
-        }
-
-        // 🟢 Interaction: Redeem Reward
-        async function redeemReward(rewardId, cost, title, rewardType) {
-            if (!confirm(`Are you sure you want to redeem "${title}" for ${cost} points?`)) return;
-
-            let deliveryAddress = null;
-            if (rewardType && rewardType.toLowerCase() === 'physical') {
-                deliveryAddress = prompt(`Please enter the shipping address to receive your "${title}":\n(Include Street, City, ZIP, Country)`);
-                if (!deliveryAddress || deliveryAddress.trim() === "") {
-                    alert("A delivery address is required to process physical merchandise.");
-                    return;
-                }
-            }
-
-            const token = localStorage.getItem("token");
-            try {
-                const res = await fetch(`${API_BASE}/api/rewards/redeem`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ rewardId, deliveryAddress })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    alert(`🎉 Success! You just redeemed "${title}". Your new balance is ${data.remainingPoints} points.`);
-                    window.location.reload(); // Reload to update UI locks and balance
-                } else {
-                    alert(`❌ Failed: ${data.message}`);
-                }
-            } catch (err) {
-                alert("An error occurred while redeeming.");
-                console.error(err);
-            }
-        }
-    
-window.renderDashboard = renderDashboard;
 window.filterRewards = filterRewards;
 window.renderRewardsGrid = renderRewardsGrid;
 window.claimTask = claimTask;
 window.redeemReward = redeemReward;
 </script>
 </body>
-
 </html>

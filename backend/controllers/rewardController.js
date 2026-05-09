@@ -170,10 +170,11 @@ exports.redeemReward = async (req, res) => {
         user.points -= reward.pointsRequired;
         await user.save();
 
-        // Create Redemption record (ensure fallback DB items don't crash the query with invalid ObejctIds)
-        let safeRewardId = reward._id;
+        // Create Redemption record (ensure fallback DB items don't crash the query with invalid ObjectIds)
+        let safeRewardId = String(reward._id);
+        let redemption = null;
         if (safeRewardId.length === 24) {
-            await Redemption.create({ userId, rewardId: safeRewardId, status: "pending", deliveryAddress });
+            redemption = await Redemption.create({ userId, rewardId: safeRewardId, status: "pending", deliveryAddress });
         }
 
         // Log negative point transaction

@@ -171,9 +171,9 @@ import { API_BASE } from '../js/apiConfig.js';
             </a>
         </nav>
 
-        <!-- Edit Profile (citizen.html only) -->
-        <div id="pp-edit-section" class="hidden px-6 py-4 border-b border-[#dbe6df] dark:border-white/10">
-            <button onclick="closeProfilePanel(); document.getElementById('editProfileBtn') && document.getElementById('editProfileBtn').click();"
+        <!-- Edit Profile -->
+        <div id="pp-edit-section" class="px-6 py-4 border-b border-[#dbe6df] dark:border-white/10">
+            <button onclick="closeProfilePanel(); window.openEditProfileModal && window.openEditProfileModal();"
                 class="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-background-light dark:bg-white/10 border border-[#dbe6df] dark:border-white/10 text-sm font-bold hover:bg-primary/10 hover:border-primary/30 transition-all">
                 <span class="material-symbols-outlined text-base sm:text-lg">edit</span> Edit Profile
             </button>
@@ -188,13 +188,50 @@ import { API_BASE } from '../js/apiConfig.js';
         </div>
     </div>`;
 
-    // ─── CSS for panel slide ──────────────────────────────────────────────
+    // ─── CSS for panel slide and modal ───────────────────────────────────────
     const panelStyles = `
     <style id="gh-panel-styles">
         #profilePanel::-webkit-scrollbar { width: 4px; }
         #profilePanel::-webkit-scrollbar-track { background: transparent; }
         #profilePanel::-webkit-scrollbar-thumb { background: rgba(19,236,91,0.25); border-radius: 9999px; }
     </style>`;
+
+    // ─── Edit Profile Modal HTML ──────────────────────────────────────────
+    const editProfileModalHTML = `
+    <div id="gh-edit-profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-background-dark w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
+            <div class="flex items-center justify-between p-5 border-b border-[#dbe6df] dark:border-white/10">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">edit_square</span> Edit Profile
+                </h2>
+                <button onclick="closeEditProfileModal()" class="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/10">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-5">
+                <form id="gh-edit-profile-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                        <input type="text" id="gh-edit-name" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-background-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Location / Neighborhood</label>
+                        <input type="text" id="gh-edit-location" placeholder="e.g. Downtown" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-background-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Avatar Image URL (Optional)</label>
+                        <input type="url" id="gh-edit-avatar" placeholder="https://example.com/avatar.jpg" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-background-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white transition-all">
+                    </div>
+                </form>
+            </div>
+            <div class="p-5 border-t border-[#dbe6df] dark:border-white/10 bg-gray-50 dark:bg-white/5 flex justify-end gap-3">
+                <button onclick="closeEditProfileModal()" type="button" class="px-5 py-2 rounded-lg font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Cancel</button>
+                <button onclick="saveProfile()" type="button" class="px-5 py-2 rounded-lg font-bold bg-primary text-[#111813] hover:brightness-110 shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">save</span> Save
+                </button>
+            </div>
+        </div>
+    </div>`;
 
     // ─── Mount header ─────────────────────────────────────────────────────
     function mountHeader() {
@@ -205,14 +242,8 @@ import { API_BASE } from '../js/apiConfig.js';
 
         // Append panel + overlay to body
         const wrapper = document.createElement('div');
-        wrapper.innerHTML = profilePanelHTML + panelStyles;
+        wrapper.innerHTML = profilePanelHTML + panelStyles + editProfileModalHTML;
         document.body.appendChild(wrapper);
-
-        // Show Edit Profile link only on citizen.html
-        if (isActive('citizen')) {
-            const editSection = document.getElementById('pp-edit-section');
-            if (editSection) editSection.classList.remove('hidden');
-        }
     }
 
     // ─── Profile Panel Controls ───────────────────────────────────────────
@@ -228,6 +259,71 @@ import { API_BASE } from '../js/apiConfig.js';
         const overlay = document.getElementById('profileOverlay');
         if (panel) { panel.style.transform = 'translateX(100%)'; }
         if (overlay) { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }
+    };
+
+    // ─── Edit Profile Modal Controls ──────────────────────────────────────
+    window.openEditProfileModal = function () {
+        const modal = document.getElementById('gh-edit-profile-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('gh-edit-name').value = user.name || '';
+            document.getElementById('gh-edit-location').value = user.location || '';
+            document.getElementById('gh-edit-avatar').value = user.profileImage || user.avatarUrl || '';
+        }
+    };
+
+    window.closeEditProfileModal = function () {
+        const modal = document.getElementById('gh-edit-profile-modal');
+        if (modal) modal.classList.add('hidden');
+    };
+
+    window.saveProfile = async function () {
+        const btn = document.querySelector('#gh-edit-profile-modal button.bg-primary');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">autorenew</span> Saving...';
+        btn.disabled = true;
+
+        const updatedData = {
+            name: document.getElementById('gh-edit-name').value,
+            location: document.getElementById('gh-edit-location').value,
+            avatarUrl: document.getElementById('gh-edit-avatar').value
+        };
+
+        const token = localStorage.getItem('token');
+        try {
+            const res = await fetch(`${API}/api/auth/me`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedData)
+            });
+
+            if (res.ok) {
+                const updatedUser = await res.json();
+                // Update local storage
+                const lsUser = JSON.parse(localStorage.getItem('user') || '{}');
+                lsUser.name = updatedUser.name;
+                lsUser.location = updatedUser.location;
+                lsUser.profileImage = updatedUser.avatarUrl;
+                localStorage.setItem('user', JSON.stringify(lsUser));
+                
+                // Update UI immediately
+                await loadUser(); // Refetch full data to update UI perfectly
+                closeEditProfileModal();
+            } else {
+                const err = await res.json();
+                alert(err.message || 'Failed to update profile');
+            }
+        } catch (e) {
+            console.error('Error saving profile:', e);
+            alert('A network error occurred while saving profile.');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     };
 
     // ─── Avatar helper ────────────────────────────────────────────────────
@@ -283,6 +379,10 @@ import { API_BASE } from '../js/apiConfig.js';
         const progress = Math.min(100, Math.round((xp / xpForNext) * 100));
         set('pp-next-level', level + 1);
         set('pp-xp-label', `${xp} / ${xpForNext} XP`);
+        
+        // Use standard map avatarURL to profileImage
+        user.profileImage = user.profileImage || user.avatarUrl;
+        setAvatar(user);
         setTimeout(() => {
             const bar = document.getElementById('pp-xp-bar');
             if (bar) bar.style.width = `${progress}%`;
