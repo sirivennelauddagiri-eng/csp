@@ -6,8 +6,9 @@ const connectDB = async () => {
             process.env.MONGO_URI || "mongodb://127.0.0.1:27017/cleanliness",
             {
                 maxPoolSize: 10,           // allow up to 10 concurrent DB operations
-                serverSelectionTimeoutMS: 5000, // fail fast if Atlas is unreachable
-                socketTimeoutMS: 45000     // prevent hanging queries
+                serverSelectionTimeoutMS: 10000, // fail fast if Atlas is unreachable
+                socketTimeoutMS: 45000,    // prevent hanging queries
+                tls: true                  // required for Atlas direct replica set connections
             }
         );
         console.log(`MongoDB Connected: ${conn.connection.host}`);

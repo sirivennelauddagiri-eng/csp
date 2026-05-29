@@ -730,9 +730,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const queriedId = urlParams.get('id');
 
+            // Always try to get auth, but don't block on failure
             await checkAuth();
 
-            // Auto-route to own NGO profile if missing ID but logged in as Authority/NGO
+            // Case 1: A specific NGO ID was provided in the URL — load it directly
+            // Works with or without auth (profile route is now public)
+            if (queriedId) {
+                initProfile(queriedId);
+                initSocket(queriedId);
+                return;
+            }
+
+            // Case 2: No ID provided, but the user is a logged-in authority
+            // → Auto-load their own NGO profile
             if (!queriedId && currentUser && currentUser.role === 'authority') {
                 try {
                     const res = await fetch(`${API}/ngo/me`, {
@@ -750,15 +760,11 @@
                 } catch (e) { console.warn("Failed to fetch /me profile", e); }
             }
 
-            if (queriedId) {
-                initProfile(queriedId);
-                initSocket(queriedId);
+            // Case 3: No ID and not an authority — redirect appropriately
+            if (currentUser && currentUser.role !== 'authority') {
+                window.location.href = 'citizen.html';
             } else {
-                if (currentUser && currentUser.role !== 'authority') {
-                    window.location.href = 'citizen.html';
-                } else {
-                    window.location.href = 'authority.html';
-                }
+                window.location.href = 'authority.html';
             }
         });
 

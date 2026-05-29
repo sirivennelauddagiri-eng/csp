@@ -1,5 +1,4 @@
 require("dotenv").config();
-require("./dns-patch");
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
