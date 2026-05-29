@@ -1839,9 +1839,12 @@ import { API_BASE } from '../js/apiConfig.js';
                 });
                 const data = await res.json();
                 const p = data.profile;
-                const resolved = data.resolutionHistory ? data.resolutionHistory.length : (p.totalIssuesHandled || 0);
-                const active   = data.activeMissions   ? data.activeMissions.length   : 0;
-                const successRate = p.resolutionSuccessRate ? p.resolutionSuccessRate.toFixed(1) + '%' : 'N/A';
+                
+                // Use dynamic stats from backend calculation if available
+                const resolved = data.stats ? data.stats.totalIssuesResolved : (data.resolutionHistory ? data.resolutionHistory.length : (p.totalIssuesHandled || 0));
+                const active   = data.stats ? data.stats.activeCases : (data.activeMissions ? data.activeMissions.length : 0);
+                const successRate = data.stats ? data.stats.resolutionSuccessRate + '%' : (p.resolutionSuccessRate ? p.resolutionSuccessRate.toFixed(1) + '%' : 'N/A');
+                const ratingVal = data.stats ? data.stats.ngoRating.toFixed(1) : (p.rating || 5.0).toFixed(1);
 
                 const statusColor = p.operatingStatus === 'Busy'
                     ? 'bg-amber-100 text-amber-700 border-amber-200'
@@ -1849,35 +1852,43 @@ import { API_BASE } from '../js/apiConfig.js';
                         ? 'bg-slate-100 text-slate-500'
                         : 'bg-emerald-100 text-emerald-700 border-emerald-200';
 
-                const ratingVal = (p.rating || 0).toFixed(1);
-                const ratingInt = Math.round(p.rating || 0);
-                const stars = '★'.repeat(Math.min(ratingInt, 5)) + '☆'.repeat(Math.max(0, 5 - ratingInt));
+                const dateJoined = new Date(p.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+                const logoHtml = p.logo && p.logo.length > 5
+                    ? `<img src="${p.logo}" class="w-full h-full object-cover rounded-xl" alt="NGO Logo">`
+                    : p.name.charAt(0).toUpperCase();
+
+                const regionsHtml = p.operationalRegions && p.operationalRegions.length > 0
+                    ? p.operationalRegions.map(r => `<span class="px-2 py-0.5 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[9px] font-bold uppercase tracking-wide">${r}</span>`).join(' ')
+                    : '<span class="text-slate-400 italic text-[11px]">Not specified</span>';
 
                 content.innerHTML = `
                     <!-- Header -->
-                    <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-900 to-slate-800">
-                        <div class="flex items-center gap-4">
-                            <div class="size-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-2xl font-black text-white shadow-lg">
-                                ${p.name.charAt(0)}
+                    <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-t-2xl">
+                        <div class="flex items-center gap-4 flex-1 min-w-0">
+                            <div class="size-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-2xl font-black text-white shadow-lg overflow-hidden shrink-0">
+                                ${logoHtml}
                             </div>
-                            <div>
-                                <h3 class="text-lg font-black text-white">${p.name}</h3>
-                                <p class="text-xs text-slate-400">${p.specialization}</p>
-                                <div class="text-amber-400 text-sm mt-0.5">${stars} <span class="text-slate-400 text-[10px]">${ratingVal}/5</span></div>
+                            <div class="min-w-0">
+                                <h3 class="text-lg font-black text-white flex items-center gap-1.5 leading-tight truncate">
+                                    ${p.name}
+                                    ${p.isVerified ? '<span class="material-symbols-outlined text-emerald-400 text-[18px] shrink-0">verified</span>' : ''}
+                                </h3>
+                                <p class="text-xs text-slate-300 font-medium truncate">${p.specialization}</p>
+                                <p class="text-[9px] text-slate-400 font-medium mt-1">Authorized since ${dateJoined}</p>
                             </div>
                         </div>
-                        <div class="flex flex-col items-end gap-2">
+                        <div class="flex flex-col items-end gap-2 shrink-0 ml-3">
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 ${statusColor} border rounded-full text-[9px] font-bold uppercase tracking-wider">
                                 ${p.operatingStatus || 'Active'}
                             </span>
-                            <button onclick="closeNGOModal()" class="text-slate-400 hover:text-white transition-colors">
+                            <button onclick="closeNGOModal()" class="text-slate-400 hover:text-white transition-colors p-1">
                                 <span class="material-symbols-outlined">close</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Stats Grid -->
-                    <div class="grid grid-cols-3 gap-0 border-b border-slate-100">
+                    <div class="grid grid-cols-3 gap-0 border-b border-slate-100 bg-slate-50/50">
                         <div class="p-4 text-center border-r border-slate-100">
                             <div class="text-2xl font-black text-slate-900">${resolved}</div>
                             <div class="text-[9px] text-slate-400 uppercase tracking-widest font-bold mt-1">Issues Solved</div>
@@ -1892,51 +1903,71 @@ import { API_BASE } from '../js/apiConfig.js';
                         </div>
                     </div>
 
-                    <!-- Active Missions count -->
-                    <div class="px-6 pt-5 pb-4">
-                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Live Status</h4>
+                    <!-- About Organization -->
+                    <div class="px-6 pt-5 pb-3">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">About Organization</h4>
+                        <p class="text-xs text-slate-700 leading-relaxed font-medium">${p.missionStatement || `An organization specializing in ${p.specialization}.`}</p>
+                    </div>
+
+                    <!-- Operating Regions -->
+                    <div class="px-6 py-3 border-t border-slate-100/50">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Operating Regions</h4>
+                        <div class="flex flex-wrap gap-1.5">${regionsHtml}</div>
+                    </div>
+
+                    <!-- Live Status -->
+                    <div class="px-6 py-3 border-t border-slate-100/50">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Operational Telemetry</h4>
                         <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                            <span class="material-symbols-outlined text-amber-500">front_hand</span>
+                            <span class="material-symbols-outlined text-amber-500">rocket_launch</span>
                             <div>
-                                <div class="text-sm font-bold text-slate-900">${active} Active Mission${active !== 1 ? 's' : ''}</div>
-                                <div class="text-[10px] text-slate-500">Currently in progress</div>
+                                <div class="text-xs font-bold text-slate-900">${active} Active Mission${active !== 1 ? 's' : ''}</div>
+                                <div class="text-[10px] text-slate-500 font-medium">Currently deployed in coordination with municipal forces</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Contact Info -->
-                    <div class="px-6 pb-5">
-                        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Contact Information</h4>
-                        <div class="space-y-2">
+                    <div class="px-6 py-4 border-t border-slate-100/50">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Command & Contact Details</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 font-medium">
                             ${p.directorName ? `
-                            <div class="flex items-center gap-3 text-xs text-slate-700">
-                                <span class="material-symbols-outlined text-slate-400 text-sm">person</span>
-                                <span><span class="font-semibold">Director:</span> ${p.directorName}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-slate-450 text-[18px]">person</span>
+                                <span><span class="font-bold">Director:</span> ${p.directorName}</span>
+                            </div>` : ''}
+                            ${p.registrationNumber ? `
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-slate-450 text-[18px]">gavel</span>
+                                <span><span class="font-bold">Reg No:</span> ${p.registrationNumber}</span>
                             </div>` : ''}
                             ${p.email ? `
-                            <div class="flex items-center gap-3 text-xs text-slate-700">
-                                <span class="material-symbols-outlined text-slate-400 text-sm">mail</span>
-                                <span>${p.email}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-slate-450 text-[18px]">mail</span>
+                                <a href="mailto:${p.email}" class="text-primary hover:underline font-bold truncate">${p.email}</a>
+                            </div>` : ''}
+                            ${p.phone ? `
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-slate-450 text-[18px]">call</span>
+                                <span><span class="font-bold">Phone:</span> ${p.phone}</span>
                             </div>` : ''}
                             ${p.emergencyContact ? `
-                            <div class="flex items-center gap-3 text-xs text-slate-700">
-                                <span class="material-symbols-outlined text-slate-400 text-sm">call</span>
-                                <span>${p.emergencyContact}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-red-500 text-[18px]">emergency</span>
+                                <span class="text-red-650 font-bold">Emergency: ${p.emergencyContact}</span>
                             </div>` : ''}
                             ${p.website ? `
-                            <div class="flex items-center gap-3 text-xs text-slate-700">
-                                <span class="material-symbols-outlined text-slate-400 text-sm">language</span>
-                                <a href="${p.website}" target="_blank" class="text-primary hover:underline">${p.website}</a>
+                            <div class="flex items-center gap-2 col-span-1 sm:col-span-2">
+                                <span class="material-symbols-outlined text-slate-450 text-[18px]">language</span>
+                                <a href="${p.website.startsWith('http') ? p.website : 'https://' + p.website}" target="_blank" class="text-primary hover:underline font-bold truncate">${p.website}</a>
                             </div>` : ''}
-                            ${(!p.directorName && !p.email && !p.emergencyContact && !p.website) ?
-                                '<p class="text-[11px] text-slate-400 italic">No contact information available.</p>' : ''}
                         </div>
                     </div>
 
                     <!-- Footer CTA -->
-                    <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex gap-3">
-                        <a href="ngo-profile.html?id=${p._id}" class="flex-1 py-2.5 bg-slate-900 text-white rounded-lg text-xs font-bold text-center hover:bg-slate-800 transition-colors">
-                            Full Profile
+                    <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex gap-3 rounded-b-2xl">
+                        <a href="ngo-profile.html?id=${p._id}" class="flex-1 py-2.5 bg-slate-900 text-white rounded-lg text-xs font-bold text-center hover:bg-slate-800 transition-colors shadow-md shadow-slate-900/10">
+                            Open Full Profile
                         </a>
                         <button onclick="closeNGOModal()" class="flex-1 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors">
                             Close

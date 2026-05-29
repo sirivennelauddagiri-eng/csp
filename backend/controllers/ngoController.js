@@ -3,6 +3,189 @@ const Issue = require('../models/Issue');
 const NGO = require('../models/NGO');
 const NgoDocument = require('../models/NgoDocument');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+// Helper to gather all dynamic NGO stats, achievements, timeline, and completion percentage
+const getNGOFullDetails = async (ngo) => {
+    // 1. Fetch related issues
+    const allAssignedIssues = await Issue.find({ ngoId: ngo._id }).lean();
+    
+    const activeMissions = allAssignedIssues.filter(i => i.status === 'In Progress')
+        .sort((a, b) => b.createdAt - a.createdAt);
+    
+    const resolutionHistory = allAssignedIssues.filter(i => i.status === 'Resolved')
+        .sort((a, b) => (b.resolvedDate || b.updatedAt) - (a.resolvedDate || a.updatedAt));
+
+    const totalIssuesClaimed = allAssignedIssues.length;
+    const totalIssuesResolved = resolutionHistory.length;
+    const activeCases = activeMissions.length;
+
+    // Success Rate
+    const resolutionSuccessRate = totalIssuesClaimed > 0 
+        ? Math.round((totalIssuesResolved / totalIssuesClaimed) * 100)
+        : ngo.resolutionSuccessRate || 0;
+
+    // Average Response Time (in hours)
+    let avgResponseTime = ngo.averageResponseTime || 1.8;
+    if (totalIssuesResolved > 0) {
+        let totalHours = 0;
+        let count = 0;
+        resolutionHistory.forEach(issue => {
+            const start = issue.dateReported || issue.createdAt;
+            const end = issue.resolvedDate || issue.updatedAt;
+            if (start && end) {
+                const diffMs = new Date(end) - new Date(start);
+                const diffHrs = diffMs / (1000 * 60 * 60);
+                if (diffHrs >= 0) {
+                    totalHours += diffHrs;
+                    count++;
+                }
+            }
+        });
+        if (count > 0) {
+            avgResponseTime = Number((totalHours / count).toFixed(1));
+        }
+    }
+
+    // Total Community Impact Score
+    let totalCommunityImpactScore = 0;
+    allAssignedIssues.forEach(issue => {
+        if (issue.status === 'Resolved') {
+            totalCommunityImpactScore += (issue.impactScore || 15);
+        }
+    });
+
+    // Community Reach
+    const uniqueReporters = new Set();
+    allAssignedIssues.forEach(issue => {
+        if (issue.userId) uniqueReporters.add(String(issue.userId));
+        if (issue.reportedBy && Array.isArray(issue.reportedBy)) {
+            issue.reportedBy.forEach(uid => uniqueReporters.add(String(uid)));
+        }
+    });
+    const communityReach = uniqueReporters.size;
+
+    // Achievements check
+    const achievements = [
+        {
+            id: 'fast_responder',
+            title: 'Fast Responder',
+            description: 'Maintain average resolution time under 2 hours.',
+            icon: 'electric_bolt',
+            earned: avgResponseTime > 0 && avgResponseTime < 2,
+            earnedDate: ngo.createdAt
+        },
+        {
+            id: 'top_rated',
+            title: 'Top Rated NGO',
+            description: 'Achieve a rating of 4.8 or above from community reviews.',
+            icon: 'workspace_premium',
+            earned: (ngo.rating || 5.0) >= 4.8,
+            earnedDate: ngo.createdAt
+        },
+        {
+            id: 'community_champion',
+            title: 'Community Champion',
+            description: 'Successfully resolve 10 or more community issues.',
+            icon: 'diversity_1',
+            earned: totalIssuesResolved >= 10,
+            earnedDate: resolutionHistory[9] ? (resolutionHistory[9].resolvedDate || resolutionHistory[9].updatedAt) : null
+        },
+        {
+            id: 'impact_leader',
+            title: 'Environmental Impact Leader',
+            description: 'Accumulate a total community impact score of 500 or more.',
+            icon: 'forest',
+            earned: totalCommunityImpactScore >= 500,
+            earnedDate: ngo.createdAt
+        }
+    ];
+
+    // Profile Completion Percentage
+    let filledFields = 0;
+    const fieldsToCheck = [
+        ngo.name,
+        ngo.logo,
+        ngo.missionStatement,
+        ngo.registrationNumber,
+        ngo.email,
+        ngo.phone,
+        ngo.website,
+        ngo.location?.address,
+        (ngo.operationalRegions && ngo.operationalRegions.length > 0) ? 'filled' : null,
+        ngo.specialization
+    ];
+    fieldsToCheck.forEach(f => {
+        if (f && String(f).trim().length > 0) filledFields++;
+    });
+    const profileCompletionPercentage = Math.round((filledFields / fieldsToCheck.length) * 100);
+
+    // Documents
+    const documents = await NgoDocument.find({ ngoId: ngo._id }).lean();
+
+    // AI Insights
+    const speedInsight = avgResponseTime < 2 ? "resolves issues highly efficiently, faster than average." : "maintains steady response times.";
+    const aiInsights = [
+        `${ngo.name} ${speedInsight}`,
+        "Most incidents handled in the primary operating district.",
+        `Demonstrates high success rate handling ${ngo.specialization} cases.`
+    ];
+
+    // Activity Timeline
+    const activityTimeline = [];
+    activityTimeline.push({
+        type: 'join',
+        title: 'Organization Authorized',
+        description: `${ngo.name} joined CivicImpact network.`,
+        date: ngo.createdAt
+    });
+    resolutionHistory.forEach(issue => {
+        activityTimeline.push({
+            type: 'resolution',
+            title: `Resolved: ${issue.title || issue.category}`,
+            description: `Successfully resolved case in ${issue.location}. Impact score: +${issue.impactScore || 15} pts.`,
+            date: issue.resolvedDate || issue.updatedAt
+        });
+    });
+    achievements.forEach(ach => {
+        if (ach.earned && ach.earnedDate) {
+            activityTimeline.push({
+                type: 'achievement',
+                title: `Unlocked Achievement: ${ach.title}`,
+                description: ach.description,
+                date: ach.earnedDate
+            });
+        }
+    });
+    activityTimeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    return {
+        profile: {
+            ...ngo,
+            registrationNumber: ngo.registrationNumber || '',
+            phone: ngo.phone || '',
+            createdAt: ngo.createdAt
+        },
+        activeMissions,
+        resolutionHistory,
+        documents,
+        aiInsights,
+        stats: {
+            totalIssuesClaimed,
+            totalIssuesResolved,
+            activeCases,
+            resolutionSuccessRate,
+            averageResponseTime: avgResponseTime,
+            ngoRating: ngo.rating || 5.0,
+            totalCommunityImpactScore,
+            communityReach
+        },
+        achievements,
+        profileCompletionPercentage,
+        activityTimeline
+    };
+};
 
 exports.getMyNGOProfile = async (req, res) => {
     try {
@@ -11,36 +194,22 @@ exports.getMyNGOProfile = async (req, res) => {
             return res.status(403).json({ error: "Only NGOs/Authorities can have an NGO profile." });
         }
 
-        let ngo = await NGO.findOne({ email: user.email });
+        let ngo = await NGO.findOne({ email: user.email }).lean();
 
         if (!ngo) {
-            ngo = new NGO({
+            const newNgo = new NGO({
                 name: user.name || 'My NGO',
                 email: user.email,
                 specialization: 'General Civic Action',
                 location: { latitude: 0, longitude: 0, address: user.location || 'HQ' },
                 isVerified: false
             });
-            await ngo.save();
+            await newNgo.save();
+            ngo = newNgo.toObject();
         }
 
-        const activeMissions = await Issue.find({ ngoId: ngo._id, status: 'In Progress' }).sort({ createdAt: -1 });
-        const resolutionHistory = await Issue.find({ ngoId: ngo._id, status: 'Resolved' }).sort({ updatedAt: -1 });
-        const documents = await NgoDocument.find({ ngoId: ngo._id });
-
-        const aiInsights = [
-            `Performance analysis indicates an average response time of ${(ngo.averageResponseTime || 1.8).toFixed(1)} hours.`,
-            `${activeMissions.length} squads currently tracking active containment vectors.`,
-            `Historical resolution success rate maintained safely above minimum thresholds.`
-        ];
-
-        res.json({
-            profile: ngo,
-            activeMissions,
-            resolutionHistory,
-            documents,
-            aiInsights
-        });
+        const details = await getNGOFullDetails(ngo);
+        res.json(details);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to load NGO profile." });
@@ -256,34 +425,13 @@ exports.getChatSummary = async (req, res) => {
 
 exports.getNGOProfile = async (req, res) => {
     try {
-        const ngo = await NGO.findById(req.params.ngoId);
+        const ngo = await NGO.findById(req.params.ngoId).lean();
         if (!ngo) return res.status(404).json({ error: "NGO not found" });
 
-        // Fetch active missions (issues assigned to this NGO with status 'In Progress')
-        const activeMissions = await Issue.find({ ngoId: ngo._id, status: 'In Progress' }).sort({ createdAt: -1 });
-
-        // Fetch resolution history (issues assigned to this NGO with status 'Resolved')
-        const resolutionHistory = await Issue.find({ ngoId: ngo._id, status: 'Resolved' }).sort({ updatedAt: -1 });
-
-        // Fetch Documents
-        const documents = await NgoDocument.find({ ngoId: ngo._id });
-
-        // Mock AI Insights based on heuristic data
-        const speedInsight = ngo.averageResponseTime < 2 ? "resolves issues highly efficiently, faster than average." : "maintains steady response times.";
-        const aiInsights = [
-            `${ngo.name} ${speedInsight}`,
-            "Most incidents handled in the primary operating district.",
-            `Demonstrates high success rate handling ${ngo.specialization} cases.`
-        ];
-
-        res.json({
-            profile: ngo,
-            activeMissions,
-            resolutionHistory,
-            documents,
-            aiInsights
-        });
+        const details = await getNGOFullDetails(ngo);
+        res.json(details);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: "Failed to fetch NGO profile" });
     }
 }
@@ -291,11 +439,25 @@ exports.getNGOProfile = async (req, res) => {
 exports.updateNGOProfile = async (req, res) => {
     try {
         const ngoId = req.params.ngoId;
+        const user = await User.findById(req.user.id || req.user._id);
+
+        if (!user || user.role !== 'authority') {
+            return res.status(403).json({ error: "Only authorized NGOs/Authorities can update profile." });
+        }
+
+        const ngo = await NGO.findById(ngoId);
+        if (!ngo) return res.status(404).json({ error: "NGO not found" });
+
+        // Enforce ownership: logged-in user email must match NGO email
+        if (ngo.email !== user.email) {
+            return res.status(403).json({ error: "Unauthorized: You can only update your own NGO profile." });
+        }
 
         const updatableFields = [
             'name', 'missionStatement', 'foundedYear', 'specialization',
             'areasOfExpertise', 'extendedExpertise', 'directorName',
-            'emergencyContact', 'headquarters', 'email', 'website', 'logo', 'operatingStatus', 'operationalRegions'
+            'emergencyContact', 'headquarters', 'email', 'website', 'logo',
+            'operatingStatus', 'operationalRegions', 'registrationNumber', 'phone'
         ];
 
         let updateData = {};
@@ -315,13 +477,133 @@ exports.updateNGOProfile = async (req, res) => {
             updateData.operationalRegions = updateData.operationalRegions.split(',').map(s => s.trim()).filter(s => s);
         }
 
-        const updatedNgo = await NGO.findByIdAndUpdate(ngoId, updateData, { new: true });
+        // Sync name and email back to the User collection if changed
+        if (updateData.name && updateData.name !== ngo.name) {
+            user.name = updateData.name;
+        }
+        if (updateData.email && updateData.email !== ngo.email) {
+            // Check if email taken
+            const emailExists = await User.findOne({ email: updateData.email }).select("_id").lean();
+            if (emailExists && String(emailExists._id) !== String(user._id)) {
+                return res.status(400).json({ error: "Email is already in use by another user." });
+            }
+            user.email = updateData.email;
+        }
+        await user.save();
 
-        if (!updatedNgo) return res.status(404).json({ error: "NGO not found" });
+        const updatedNgo = await NGO.findByIdAndUpdate(ngoId, updateData, { new: true });
 
         res.json({ message: "Profile updated successfully", profile: updatedNgo });
 
     } catch (err) {
+        console.error("Update NGO Profile Error:", err);
         res.status(500).json({ error: "Failed to update NGO profile" });
     }
-}
+};
+
+exports.uploadNGOLogo = async (req, res) => {
+    try {
+        const ngoId = req.params.ngoId;
+        const { logo } = req.body;
+        if (!logo) return res.status(400).json({ error: "Logo image data is required." });
+
+        const user = await User.findById(req.user.id || req.user._id);
+        const ngo = await NGO.findById(ngoId);
+        if (!ngo) return res.status(404).json({ error: "NGO not found" });
+
+        if (ngo.email !== user.email) {
+            return res.status(403).json({ error: "Unauthorized: You can only update your own NGO logo." });
+        }
+
+        ngo.logo = logo;
+        await ngo.save();
+
+        res.json({ message: "Logo updated successfully", logo: ngo.logo });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to upload logo." });
+    }
+};
+
+exports.updateNGOSecurity = async (req, res) => {
+    try {
+        const ngoId = req.params.ngoId;
+        const { action, currentPassword, newPassword, newEmail } = req.body;
+
+        const user = await User.findById(req.user.id || req.user._id);
+        const ngo = await NGO.findById(ngoId);
+        if (!ngo) return res.status(404).json({ error: "NGO not found" });
+
+        if (ngo.email !== user.email) {
+            return res.status(403).json({ error: "Unauthorized: You can only access security settings for your own NGO." });
+        }
+
+        if (action === 'password') {
+            if (!currentPassword || !newPassword) {
+                return res.status(400).json({ error: "Current password and new password are required." });
+            }
+
+            // Verify current password
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ error: "Incorrect current password." });
+            }
+
+            // Hash and save new password
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(newPassword, salt);
+            await user.save();
+
+            return res.json({ message: "Password updated successfully." });
+
+        } else if (action === 'email') {
+            if (!newEmail) {
+                return res.status(400).json({ error: "New email is required." });
+            }
+
+            // Verify email isn't already taken
+            const emailExists = await User.findOne({ email: newEmail }).select("_id").lean();
+            if (emailExists && String(emailExists._id) !== String(user._id)) {
+                return res.status(400).json({ error: "Email is already taken by another account." });
+            }
+
+            // Update both collections
+            user.email = newEmail;
+            await user.save();
+
+            ngo.email = newEmail;
+            await ngo.save();
+
+            // Generate new token with updated email
+            const token = jwt.sign(
+                { id: user._id, role: user.role },
+                process.env.JWT_SECRET,
+                { expiresIn: "7d" }
+            );
+
+            return res.json({ message: "Email updated successfully.", token });
+
+        } else if (action === 'session') {
+            // Return session info
+            const ip = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
+            const userAgent = req.headers['user-agent'] || 'Unknown Device';
+            const strength = user.password.length > 20 ? 'Strong' : 'Medium';
+            
+            return res.json({
+                ip,
+                userAgent,
+                lastActive: new Date(),
+                securityStatus: {
+                    strength,
+                    twoFactor: false,
+                    verified: ngo.isVerified
+                }
+            });
+        } else {
+            return res.status(400).json({ error: "Invalid action." });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Security update failed." });
+    }
+};

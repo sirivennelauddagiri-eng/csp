@@ -2,10 +2,10 @@
 <html class="light" lang="en">
 
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>" />
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>NGO Deep Verification Profile | AuthorityOS</title>
+    <title>NGO Organizational Dashboard | CivicImpact</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -44,11 +44,30 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
             font-size: 20px;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .glass-panel {
-            @apply bg-white/70 backdrop-blur-lg border border-white/50 shadow-sm rounded-xl;
+            @apply bg-white/70 backdrop-blur-lg border border-slate-200/80 shadow-sm rounded-xl;
+        }
+        .progress-bar {
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out both;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .badge-card {
+            @apply flex flex-col items-center p-5 rounded-xl border transition-all duration-300;
+        }
+        .badge-earned {
+            @apply bg-emerald-50/50 border-emerald-200 shadow-md shadow-emerald-500/5 hover:-translate-y-1;
+        }
+        .badge-locked {
+            @apply bg-slate-50 border-slate-200 opacity-60 filter grayscale;
         }
     </style>
 </head>
@@ -65,8 +84,7 @@
                     <div class="flex flex-col">
                         <h1 class="text-white text-sm font-bold tracking-tight">AUTHORITY<span
                                 class="text-primary font-normal">OS</span></h1>
-                        <p class="text-slate-400 text-[10px] font-medium uppercase tracking-[0.1em]">National Workspace
-                        </p>
+                        <p class="text-slate-400 text-[10px] font-medium uppercase tracking-[0.1em]">National Workspace</p>
                     </div>
                 </div>
             </div>
@@ -77,7 +95,7 @@
                     <span class="material-symbols-outlined">dashboard</span>
                     <span class="text-sm font-semibold">Command Center</span>
                 </a>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-md bg-primary/10 text-primary border-l-2 border-primary"
+                <a class="flex items-center gap-3 px-3 py-2 rounded-md bg-primary/10 text-primary border-l-2 border-primary cursor-pointer"
                     href="#">
                     <span class="material-symbols-outlined">groups</span>
                     <span class="text-sm font-semibold">NGO Directory</span>
@@ -104,15 +122,13 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h2 class="text-xl font-black text-slate-900 tracking-tight" id="ngo-name-hero">Loading NGO
-                                Profile...</h2>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight" id="ngo-name-hero">Loading NGO Profile...</h2>
                             <span id="ngo-badge-hero"
                                 class="bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded flex items-center gap-1 border border-emerald-200 hidden">
                                 <span class="material-symbols-outlined text-[12px]">verified</span> Verified Partner
                             </span>
                         </div>
-                        <p class="text-sm text-slate-500 font-medium" id="ngo-status-hero">Initializing intelligence
-                            module...</p>
+                        <p class="text-sm text-slate-500 font-medium" id="ngo-status-hero">Initializing intelligence module...</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3" id="action-buttons">
@@ -126,367 +142,583 @@
                         class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2">
                         <span class="material-symbols-outlined text-[16px]">add_task</span> Assign Mission
                     </button>
-                    <button id="btn-edit-profile" onclick="openEditModal()"
-                        class="hidden bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[16px]">edit</span> Edit Profile
-                    </button>
                 </div>
             </header>
 
+            <!-- Navigation Tabs Header -->
+            <div class="bg-white border-b border-slate-200 sticky top-[80px] z-30 px-8 py-1.5 backdrop-blur-md bg-white/95 shadow-sm">
+                <div class="max-w-[1400px] mx-auto flex items-center gap-2" id="ngo-profile-tabs">
+                    <button onclick="switchProfileTab('overview')" id="tab-btn-overview"
+                        class="px-5 py-3 text-sm font-bold border-b-2 border-primary text-primary transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">dashboard</span> Overview
+                    </button>
+                    <button onclick="switchProfileTab('missions')" id="tab-btn-missions"
+                        class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">assignment</span> Missions & Timeline
+                    </button>
+                    <button onclick="switchProfileTab('achievements')" id="tab-btn-achievements"
+                        class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">emoji_events</span> Achievements
+                    </button>
+                    <button onclick="switchProfileTab('settings')" id="tab-btn-settings"
+                        class="hidden px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">settings</span> Settings
+                    </button>
+                    <button onclick="switchProfileTab('security')" id="tab-btn-security"
+                        class="hidden px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-900 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">security</span> Security
+                    </button>
+                </div>
+            </div>
+
+            <!-- Page Main Content Wrap -->
             <div class="p-8 max-w-[1400px] w-full mx-auto flex flex-col gap-6 pb-20">
-                <!-- Top HUD Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="glass-panel p-5">
-                        <p
-                            class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">inventory_2</span> Cases Resolved
+                
+                <!-- Profile Completion Banner -->
+                <div id="profile-completion-card" class="hidden glass-panel p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-xs font-bold text-emerald-800 uppercase tracking-widest flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">check_circle</span> Profile Completion Progress
                         </p>
-                        <p class="text-3xl font-black text-slate-900" id="stat-cases-resolved">--</p>
+                        <span id="completion-percentage-text" class="text-sm font-black text-emerald-700">0%</span>
                     </div>
-                    <div class="glass-panel p-5">
-                        <p
-                            class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">rocket_launch</span> Active Missions
-                        </p>
-                        <p class="text-3xl font-black text-amber-600" id="stat-active-missions">--</p>
+                    <div class="h-2.5 w-full rounded-full bg-slate-200/80 overflow-hidden">
+                        <div id="completion-percentage-bar" class="h-full bg-primary progress-bar" style="width:0%"></div>
                     </div>
-                    <div class="glass-panel p-5">
-                        <p
-                            class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">timer</span> Avg Response Time
-                        </p>
-                        <div class="flex items-baseline gap-1">
-                            <p class="text-3xl font-black text-slate-900" id="stat-avg-response">--</p><span
-                                class="text-sm font-bold text-slate-400">h</span>
+                    <p class="text-[11px] text-emerald-700/70 mt-1.5 font-medium">Complete your organizational profile to verify your authority status and improve community trust rankings.</p>
+                </div>
+
+                <!-- TAB CONTENT: OVERVIEW -->
+                <div id="tab-content-overview" class="tab-panel flex flex-col gap-6 animate-fade-in">
+                    <!-- Top HUD Stats (Upgraded to 8 Metric Cards) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-panel p-5 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">assignment_turned_in</span> Claims
+                            </p>
+                            <p class="text-3xl font-black text-slate-900" id="stat-cases-claimed">--</p>
+                        </div>
+                        <div class="glass-panel p-5 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-emerald-600">inventory_2</span> Resolved
+                            </p>
+                            <p class="text-3xl font-black text-emerald-600" id="stat-cases-resolved">--</p>
+                        </div>
+                        <div class="glass-panel p-5 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-amber-500">rocket_launch</span> Active Cases
+                            </p>
+                            <p class="text-3xl font-black text-amber-600" id="stat-active-missions">--</p>
+                        </div>
+                        <div class="glass-panel p-5 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-blue-700 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-blue-600">check_circle</span> Success Rate
+                            </p>
+                            <div class="flex items-baseline gap-1">
+                                <p class="text-3xl font-black text-blue-600" id="stat-success-rate">--</p>
+                                <span class="text-xs font-bold text-blue-400">%</span>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-5 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">timer</span> Avg Resolution Speed
+                            </p>
+                            <div class="flex items-baseline gap-1">
+                                <p class="text-3xl font-black text-slate-900" id="stat-avg-response">--</p>
+                                <span class="text-xs font-bold text-slate-400">hrs</span>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-5 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-indigo-700 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-indigo-600">diversity_3</span> Community Reach
+                            </p>
+                            <p class="text-3xl font-black text-indigo-600" id="stat-community-reach">--</p>
+                        </div>
+                        <div class="glass-panel p-5 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-teal-700 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-teal-600">eco</span> Impact Points
+                            </p>
+                            <p class="text-3xl font-black text-teal-600" id="stat-impact-score">--</p>
+                        </div>
+                        <div class="glass-panel p-5 border-emerald-500/30 bg-emerald-50/50 flex flex-col justify-between h-28">
+                            <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">star</span> Overall Rating
+                            </p>
+                            <div class="flex items-baseline gap-2">
+                                <p class="text-4xl font-black text-emerald-600" id="stat-rating">--</p>
+                                <span class="text-xs font-bold text-emerald-600/60 uppercase">/ 5.0</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="glass-panel p-5 border-emerald-500/30 bg-emerald-50/50">
-                        <p
-                            class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">star</span> Overall Rating
-                        </p>
-                        <div class="flex items-baseline gap-2">
-                            <p class="text-4xl font-black text-emerald-600" id="stat-rating">--</p>
-                            <span class="text-xs font-bold text-emerald-600/60 uppercase">/ 5.0</span>
+
+                    <!-- Main Grid Content -->
+                    <div class="grid grid-cols-12 gap-6">
+                        <!-- Left Info Column -->
+                        <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                            <!-- AI Intelligence -->
+                            <div class="bg-gradient-to-r from-indigo-950 to-slate-900 rounded-xl shadow-lg p-6 border border-indigo-500/30 relative overflow-hidden">
+                                <div class="absolute right-0 top-0 w-64 h-64 bg-indigo-500/10 blur-3xl rounded-full"></div>
+                                <div class="flex items-center gap-3 mb-4 relative z-10">
+                                    <span class="material-symbols-outlined text-indigo-400 animate-pulse">psychology</span>
+                                    <h3 class="text-indigo-200 text-xs font-black uppercase tracking-widest">AI Operational Intelligence</h3>
+                                </div>
+                                <ul class="space-y-3 relative z-10" id="ai-insights-list">
+                                    <li class="text-sm font-medium text-white flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-indigo-400 text-sm mt-0.5">neurology</span>
+                                        <span>Loading AI heuristics...</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Charts -->
+                            <div class="glass-panel p-6">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary">monitoring</span> Performance Analytics
+                                    </h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="h-64">
+                                        <canvas id="chart-resolution"></canvas>
+                                    </div>
+                                    <div class="h-64">
+                                        <canvas id="chart-category"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Sidebar Column -->
+                        <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                            <!-- About Organization -->
+                            <div class="glass-panel p-5">
+                                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Organizational Profile</h3>
+                                <p class="text-sm text-slate-700 leading-relaxed font-medium mb-4" id="p-mission">Mission statement data unavailable.</p>
+                                <div class="grid grid-cols-2 gap-4 text-xs border-t border-slate-100 pt-4">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Founded</p>
+                                        <p class="font-bold text-slate-900" id="p-founded">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Primary Spec</p>
+                                        <p class="font-bold text-slate-900" id="p-spec">--</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-slate-100">
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Extended Expertise</p>
+                                    <div class="flex flex-wrap gap-2" id="p-expertise">
+                                        <!-- Badges -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Team Contacts -->
+                            <div class="glass-panel p-5 bg-slate-900 text-white shadow-xl">
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Command & Control Contacts</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <span class="material-symbols-outlined text-slate-500">person</span>
+                                        <div>
+                                            <p class="text-[10px] uppercase font-bold text-slate-550">Director</p>
+                                            <p class="text-sm font-bold" id="c-director">Unknown</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="material-symbols-outlined text-red-500">emergency</span>
+                                        <div>
+                                            <p class="text-[10px] uppercase font-bold text-slate-550">Emergency Line</p>
+                                            <p class="text-sm font-bold text-red-400" id="c-emergency">--</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="material-symbols-outlined text-slate-500">corporate_fare</span>
+                                        <div>
+                                            <p class="text-[10px] uppercase font-bold text-slate-550">Headquarters</p>
+                                            <p class="text-xs font-medium text-slate-300" id="c-hq">--</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between border-t border-slate-800 pt-4 mt-4 text-xs font-bold text-primary">
+                                        <a href="#" id="link-email" class="hover:underline flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">mail</span> Email Network</a>
+                                        <a href="#" id="link-website" target="_blank" class="hover:underline flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">public</span> Official Site</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Operational Map -->
+                            <div class="glass-panel p-2 flex flex-col h-[300px]">
+                                <div class="px-3 py-2 flex justify-between items-center">
+                                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Operational Grid</h3>
+                                    <div class="flex gap-2 text-[9px] font-bold">
+                                        <div class="flex items-center gap-1"><span class="size-2 rounded-full bg-emerald-500"></span> Resolved</div>
+                                        <div class="flex items-center gap-1"><span class="size-2 rounded-full bg-amber-500"></span> Active</div>
+                                    </div>
+                                </div>
+                                <div id="ngo-map" class="w-full flex-1 rounded-lg bg-slate-100 z-10"></div>
+                            </div>
+
+                            <!-- Documents -->
+                            <div class="glass-panel p-5">
+                                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">folder</span> Verified Documents
+                                </h3>
+                                <div class="space-y-2" id="documents-list">
+                                    <p class="text-xs text-slate-400 italic">Loading documents...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Main Layout Grid -->
-                <div class="grid grid-cols-12 gap-6">
-                    <!-- Left Column -->
-                    <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
-
-                        <!-- AI Insights Card -->
-                        <div
-                            class="bg-gradient-to-r from-indigo-950 to-slate-900 rounded-xl shadow-lg p-6 border border-indigo-500/30 relative overflow-hidden">
-                            <div class="absolute right-0 top-0 w-64 h-64 bg-indigo-500/10 blur-3xl rounded-full"></div>
-                            <div class="flex items-center gap-3 mb-4 relative z-10">
-                                <span class="material-symbols-outlined text-indigo-400">psychology</span>
-                                <h3 class="text-indigo-200 text-xs font-black uppercase tracking-widest">AI Operational
-                                    Intelligence</h3>
-                            </div>
-                            <ul class="space-y-3 relative z-10" id="ai-insights-list">
-                                <li class="text-sm font-medium text-white flex items-start gap-2">
-                                    <span
-                                        class="material-symbols-outlined text-indigo-400 text-sm mt-0.5">neurology</span>
-                                    <span>Loading AI heuristics...</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Charts Section -->
-                        <div class="glass-panel p-6">
-                            <div class="flex justify-between items-center mb-6">
-                                <h3
-                                    class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-primary">monitoring</span> Performance
-                                    Analytics
-                                </h3>
-                            </div>
-                            <div class="grid grid-cols-2 gap-6">
-                                <div class="h-64">
-                                    <canvas id="chart-resolution"></canvas>
+                <!-- TAB CONTENT: MISSIONS & TIMELINE -->
+                <div id="tab-content-missions" class="tab-panel hidden flex flex-col gap-6 animate-fade-in">
+                    <div class="grid grid-cols-12 gap-6">
+                        <!-- Left Side Queue -->
+                        <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                            <!-- Live Action Queue -->
+                            <div class="glass-panel overflow-hidden">
+                                <div class="p-5 border-b border-slate-200 bg-white flex justify-between items-center">
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-amber-500">crisis_alert</span> Live Action Queue
+                                    </h3>
+                                    <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded font-bold" id="mission-count">-- Assigned</span>
                                 </div>
-                                <div class="h-64">
-                                    <canvas id="chart-category"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Active Missions -->
-                        <div class="glass-panel overflow-hidden">
-                            <div class="p-5 border-b border-slate-200 bg-white flex justify-between items-center">
-                                <h3
-                                    class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-amber-500">crisis_alert</span> Live
-                                    Action Queue
-                                </h3>
-                                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded font-bold"
-                                    id="mission-count">-- Assigned</span>
-                            </div>
-                            <table class="w-full text-left whitespace-nowrap">
-                                <thead
-                                    class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                    <tr>
-                                        <th class="px-6 py-3">Case ID & Context</th>
-                                        <th class="px-6 py-3">Operational Status</th>
-                                        <th class="px-6 py-3">Zone / Location</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="active-missions-body" class="divide-y divide-slate-100 text-sm">
-                                    <tr>
-                                        <td colspan="3" class="px-6 py-8 text-center text-slate-400 text-xs italic">
-                                            Loading mission telemetry...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- History Log -->
-                        <div class="glass-panel overflow-hidden">
-                            <div class="p-5 border-b border-slate-200 bg-white">
-                                <h3
-                                    class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-slate-400">history</span> Case
-                                    Resolution Log
-                                </h3>
-                            </div>
-                            <div class="max-h-[300px] overflow-y-auto custom-scrollbar">
                                 <table class="w-full text-left whitespace-nowrap">
-                                    <tbody id="resolution-history-body" class="divide-y divide-slate-100 text-xs">
-                                        <!-- populated dynamically -->
+                                    <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                        <tr>
+                                            <th class="px-6 py-3">Case ID & Context</th>
+                                            <th class="px-6 py-3">Operational Status</th>
+                                            <th class="px-6 py-3">Zone / Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="active-missions-body" class="divide-y divide-slate-100 text-sm">
+                                        <tr>
+                                            <td colspan="3" class="px-6 py-8 text-center text-slate-400 text-xs italic">Loading mission telemetry...</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
 
-                    </div>
-
-                    <!-- Right Column -->
-                    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
-
-                        <!-- About Section -->
-                        <div class="glass-panel p-5">
-                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Organizational
-                                Profile</h3>
-                            <p class="text-sm text-slate-700 leading-relaxed font-medium mb-4" id="p-mission">Mission
-                                statement data unavailable.</p>
-                            <div class="grid grid-cols-2 gap-4 text-xs border-t border-slate-100 pt-4">
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-                                        Founded</p>
-                                    <p class="font-bold text-slate-900" id="p-founded">--</p>
+                            <!-- Case Resolution Log -->
+                            <div class="glass-panel overflow-hidden">
+                                <div class="p-5 border-b border-slate-200 bg-white">
+                                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-slate-400">history</span> Case Resolution Log
+                                    </h3>
                                 </div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-                                        Primary Spec</p>
-                                    <p class="font-bold text-slate-900" id="p-spec">--</p>
-                                </div>
-                            </div>
-                            <div class="mt-4 pt-4 border-t border-slate-100">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Extended
-                                    Expertise</p>
-                                <div class="flex flex-wrap gap-2" id="p-expertise">
-                                    <!-- Badges -->
+                                <div class="max-h-[500px] overflow-y-auto custom-scrollbar">
+                                    <table class="w-full text-left whitespace-nowrap">
+                                        <tbody id="resolution-history-body" class="divide-y divide-slate-100 text-xs">
+                                            <!-- dynamic -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Team & Contact -->
-                        <div class="glass-panel p-5 bg-slate-900 text-white">
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Command &
-                                Control Contacts</h3>
-                            <div class="space-y-4">
-                                <div class="flex items-start gap-3">
-                                    <span class="material-symbols-outlined text-slate-500">person</span>
-                                    <div>
-                                        <p class="text-[10px] uppercase font-bold text-slate-500">Director</p>
-                                        <p class="text-sm font-bold" id="c-director">Unknown</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <span class="material-symbols-outlined text-red-500">emergency</span>
-                                    <div>
-                                        <p class="text-[10px] uppercase font-bold text-slate-500">Emergency Line</p>
-                                        <p class="text-sm font-bold text-red-400" id="c-emergency">--</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <span class="material-symbols-outlined text-slate-500">corporate_fare</span>
-                                    <div>
-                                        <p class="text-[10px] uppercase font-bold text-slate-500">Headquarters</p>
-                                        <p class="text-xs font-medium text-slate-300" id="c-hq">--</p>
-                                    </div>
-                                </div>
-                                <div
-                                    class="flex justify-between border-t border-slate-800 pt-4 mt-4 text-xs font-bold text-primary">
-                                    <a href="#" class="hover:underline flex items-center gap-1"><span
-                                            class="material-symbols-outlined text-[14px]">mail</span> Email Network</a>
-                                    <a href="#" class="hover:underline flex items-center gap-1"><span
-                                            class="material-symbols-outlined text-[14px]">public</span> Official
-                                        Site</a>
+                        <!-- Right Side Activity Timeline -->
+                        <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                            <div class="glass-panel p-5">
+                                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Activity Timeline</h3>
+                                <div class="relative pl-6 border-l-2 border-slate-150 space-y-8" id="activity-timeline-list">
+                                    <!-- Dynamic Activity Items -->
+                                    <p class="text-xs text-slate-400 italic">No activity recorded yet.</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Map -->
-                        <div class="glass-panel p-2 flex flex-col h-[300px]">
-                            <div class="px-3 py-2 flex justify-between items-center">
-                                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Operational
-                                    Grid</h3>
-                                <div class="flex gap-2 text-[9px] font-bold">
-                                    <div class="flex items-center gap-1"><span
-                                            class="size-2 rounded-full bg-emerald-500"></span> Resolved</div>
-                                    <div class="flex items-center gap-1"><span
-                                            class="size-2 rounded-full bg-amber-500"></span> Active</div>
-                                </div>
-                            </div>
-                            <div id="ngo-map" class="w-full flex-1 rounded-lg bg-slate-100"></div>
-                        </div>
-
-                        <!-- Documents -->
-                        <div class="glass-panel p-5">
-                            <h3
-                                class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">folder</span> Verified Documents
-                            </h3>
-                            <div class="space-y-2" id="documents-list">
-                                <p class="text-xs text-slate-400 italic">Loading documents...</p>
-                            </div>
-                        </div>
-
-                        <!-- Admin Controls -->
-                        <div class="glass-panel p-5 border-red-500/20 bg-red-50/30">
-                            <h3
-                                class="text-xs font-bold text-red-700 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm text-red-500">admin_panel_settings</span>
-                                Command Overrides
-                            </h3>
-                            <button
-                                class="w-full py-2 bg-white border border-red-200 text-red-600 rounded text-xs font-bold shadow-sm hover:bg-red-50 transition-colors uppercase tracking-widest">Suspend
-                                Authorization</button>
                         </div>
                     </div>
                 </div>
+
+                <!-- TAB CONTENT: ACHIEVEMENTS -->
+                <div id="tab-content-achievements" class="tab-panel hidden flex flex-col gap-6 animate-fade-in">
+                    <div class="glass-panel p-6">
+                        <div class="mb-6">
+                            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">emoji_events</span> NGO Badges & Achievements
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">Earn badges by responding quickly, resolving cases, and maximizing environmental impact.</p>
+                        </div>
+                        
+                        <!-- Badges Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="achievements-list-grid">
+                            <!-- Populated dynamically via script -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB CONTENT: SETTINGS -->
+                <div id="tab-content-settings" class="tab-panel hidden flex flex-col gap-6 animate-fade-in">
+                    <div class="glass-panel p-6">
+                        <div class="border-b border-slate-100 pb-4 mb-6 flex justify-between items-center">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">edit_document</span> Edit NGO Profile
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1">Keep your organization's registry profile up-to-date.</p>
+                            </div>
+                            <span id="settings-save-indicator" class="text-xs font-semibold text-slate-400 italic hidden flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm animate-spin">refresh</span> Autosaving...
+                            </span>
+                        </div>
+
+                        <!-- Success & Error Alerts -->
+                        <div id="settings-alert-success" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm font-semibold flex items-center gap-2">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span id="settings-alert-success-text">Profile changes saved successfully!</span>
+                        </div>
+                        <div id="settings-alert-error" class="hidden mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-semibold flex items-center gap-2">
+                            <span class="material-symbols-outlined">error</span>
+                            <span id="settings-alert-error-text">Failed to save profile. Please review inputs.</span>
+                        </div>
+
+                        <form id="embeddedSettingsForm" class="space-y-6" onsubmit="event.preventDefault(); saveProfileSettings();">
+                            <!-- Logo Upload -->
+                            <div class="flex flex-col sm:flex-row gap-5 items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <div class="relative size-20 rounded-xl bg-slate-200 border border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-inner" id="settings-logo-preview-wrap">
+                                    <span class="text-slate-400 text-xl font-bold" id="settings-logo-initial">L</span>
+                                </div>
+                                <div class="space-y-2 flex-1 w-full">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest">NGO Logo / Profile Image</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="settings-logo-url" placeholder="https://example.com/logo.png" 
+                                            class="flex-1 text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                        <input type="file" id="settings-logo-file" accept="image/*" class="hidden" onchange="handleLogoUpload(this)">
+                                        <button type="button" onclick="document.getElementById('settings-logo-file').click()" 
+                                            class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-bold hover:bg-slate-50 transition-colors">
+                                            Upload File
+                                        </button>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400">Provide an image URL or upload a logo file (PNG, JPG, max 2MB).</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">NGO Name</label>
+                                    <input type="text" id="settings-name" required
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Registration Number</label>
+                                    <input type="text" id="settings-reg-number" placeholder="e.g. NGO-REG-49320"
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div class="col-span-1 md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Organization Description / Mission Statement</label>
+                                    <textarea id="settings-mission" rows="3" required
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Primary Specialization</label>
+                                    <input type="text" id="settings-spec" required
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Extended Expertise (comma separated)</label>
+                                    <input type="text" id="settings-expertise" placeholder="e.g. Bio-Hazard, Ocean Cleanup"
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Founded Year</label>
+                                    <input type="number" id="settings-founded" required
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Director Name</label>
+                                    <input type="text" id="settings-director"
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Official Contact Email</label>
+                                    <input type="email" id="settings-email" required
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Emergency Contact Line</label>
+                                    <input type="text" id="settings-emergency"
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Phone Number</label>
+                                    <input type="text" id="settings-phone" placeholder="e.g. +91 98765 43210"
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Official Website</label>
+                                    <input type="text" id="settings-website"
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Headquarters Address</label>
+                                    <input type="text" id="settings-hq" required
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                                <div class="col-span-1 md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Operating Regions (comma separated)</label>
+                                    <input type="text" id="settings-regions" placeholder="e.g. North District, River Delta, Downtown"
+                                        class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-3 border-t border-slate-100 pt-6">
+                                <button type="button" onclick="resetSettingsForm()"
+                                    class="px-5 py-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">Cancel</button>
+                                <button type="submit" id="btn-save-settings"
+                                    class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-md shadow-md transition-all flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">save</span> Save Profile Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB CONTENT: SECURITY -->
+                <div id="tab-content-security" class="tab-panel hidden flex flex-col gap-6 animate-fade-in">
+                    <div class="grid grid-cols-12 gap-6">
+                        <!-- Left Side Forms -->
+                        <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                            <!-- Change Password -->
+                            <div class="glass-panel p-6">
+                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">lock_reset</span> Change Password
+                                </h3>
+                                
+                                <div id="security-alert-success" class="hidden mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm font-semibold flex items-center gap-2">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                    <span id="security-alert-success-text">Password updated successfully.</span>
+                                </div>
+                                <div id="security-alert-error" class="hidden mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-semibold flex items-center gap-2">
+                                    <span class="material-symbols-outlined">error</span>
+                                    <span id="security-alert-error-text">Failed to update password.</span>
+                                </div>
+
+                                <form id="securityPasswordForm" class="space-y-4" onsubmit="event.preventDefault(); submitPasswordChange();">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="col-span-1 md:col-span-2">
+                                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Current Password</label>
+                                            <input type="password" id="sec-current-password" required
+                                                class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">New Password</label>
+                                            <input type="password" id="sec-new-password" required
+                                                class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">Confirm New Password</label>
+                                            <input type="password" id="sec-confirm-password" required
+                                                class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end pt-4">
+                                        <button type="submit" id="btn-update-password" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-md shadow-sm transition-all flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-sm">key</span> Update Password
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Update Login Email -->
+                            <div class="glass-panel p-6">
+                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">mail</span> Update Login Email
+                                </h3>
+                                <p class="text-xs text-slate-500 mb-4">Note: Changing your login email updates both your security details and your dashboard registration, and will require you to use the new email for logging in.</p>
+                                
+                                <div id="email-alert-success" class="hidden mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm font-semibold flex items-center gap-2">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                    <span>Login email updated successfully.</span>
+                                </div>
+                                <div id="email-alert-error" class="hidden mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-semibold flex items-center gap-2">
+                                    <span class="material-symbols-outlined">error</span>
+                                    <span id="email-alert-error-text">Failed to update login email.</span>
+                                </div>
+
+                                <form id="securityEmailForm" class="space-y-4" onsubmit="event.preventDefault(); submitEmailUpdate();">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1.5">New Login Email</label>
+                                        <input type="email" id="sec-new-email" required
+                                            class="w-full text-sm border-slate-350 rounded-md focus:ring-primary focus:border-primary">
+                                    </div>
+                                    <div class="flex justify-end pt-4">
+                                        <button type="submit" id="btn-update-email" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-md shadow-sm transition-all flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-sm">update</span> Update Email Address
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Session Logs -->
+                            <div class="glass-panel p-6">
+                                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">devices</span> Session Activity Log
+                                </h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left text-xs whitespace-nowrap divide-y divide-slate-100">
+                                        <thead>
+                                            <tr class="text-slate-400 font-bold uppercase tracking-wider">
+                                                <th class="pb-3 pr-4">IP Address</th>
+                                                <th class="pb-3 px-4">Browser & Client</th>
+                                                <th class="pb-3 px-4">Last Active</th>
+                                                <th class="pb-3 pl-4 text-right">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100" id="session-logs-body">
+                                            <!-- dynamic -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side Security Info -->
+                        <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                            <!-- Security Status -->
+                            <div class="glass-panel p-5 bg-gradient-to-br from-slate-900 to-slate-950 text-white border-slate-800 shadow-xl">
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Account Security Status</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                                        <span class="text-xs font-medium text-slate-300 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-emerald-500 text-base">verified</span> Verification Badge
+                                        </span>
+                                        <span class="text-xs font-bold text-emerald-400 uppercase" id="sec-verified-status">Active</span>
+                                    </div>
+                                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                                        <span class="text-xs font-medium text-slate-300 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-emerald-500 text-base">security</span> Password Strength
+                                        </span>
+                                        <span class="text-xs font-bold text-emerald-400 uppercase" id="sec-password-strength">Strong</span>
+                                    </div>
+                                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                                        <span class="text-xs font-medium text-slate-300 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-amber-500 text-base">gpp_maybe</span> Two-Factor Auth (2FA)
+                                        </span>
+                                        <span class="text-xs font-bold text-amber-400 uppercase">Disabled</span>
+                                    </div>
+                                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                                        <span class="text-xs font-medium text-slate-300 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-emerald-500 text-base">badge</span> NGO Login ID
+                                        </span>
+                                        <span class="text-xs font-mono text-slate-400 truncate max-w-[120px]" id="sec-ngo-id">--</span>
+                                    </div>
+                                    <div class="flex items-center justify-between pt-1">
+                                        <span class="text-xs font-medium text-slate-300 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-emerald-500 text-base">calendar_month</span> Joined Date
+                                        </span>
+                                        <span class="text-xs font-bold text-emerald-400 uppercase" id="sec-joined-date">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeEditModal()"></div>
-        <div
-            class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-xl">
-                <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">edit_document</span> Edit NGO Profile
-                </h2>
-                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1">
-                <form id="editProfileForm" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">NGO
-                                Name</label>
-                            <input type="text" id="edit-name"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Founded
-                                Year</label>
-                            <input type="number" id="edit-founded"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Mission
-                            Statement</label>
-                        <textarea id="edit-mission" rows="3"
-                            class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary"></textarea>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Primary
-                                Specialization</label>
-                            <input type="text" id="edit-spec"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Extended
-                                Expertise (comma separated)</label>
-                            <input type="text" id="edit-expertise"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Director
-                                Name</label>
-                            <input type="text" id="edit-director"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Emergency
-                                Contact</label>
-                            <input type="text" id="edit-emergency"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                    </div>
-                    <div class="col-span-1">
-                        <label
-                            class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Headquarters</label>
-                        <input type="text" id="edit-hq"
-                            class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="col-span-1">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Operational
-                            Regions</label>
-                        <input type="text" id="edit-regions" placeholder="e.g. North District, Downtown"
-                            class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="col-span-1">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Logo
-                            URL</label>
-                        <input type="text" id="edit-logo"
-                            class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-1">
-                            <label
-                                class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Email</label>
-                            <input type="email" id="edit-email"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                        <div class="col-span-1">
-                            <label
-                                class="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Website</label>
-                            <input type="text" id="edit-website"
-                                class="w-full text-sm border-slate-300 rounded-md focus:ring-primary focus:border-primary">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="p-5 border-t border-slate-200 bg-slate-50 flex justify-end gap-3" id="editProfileFooter">
-                <button onclick="closeEditModal()"
-                    class="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">Cancel</button>
-                <button onclick="saveProfile()"
-                    class="px-6 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-md shadow-sm transition-all focus:ring-2 focus:ring-offset-2 focus:ring-primary flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">save</span> Save Profile
-                </button>
-            </div>
-        </div>
-    </div>
-    </div>
-
+    <!-- Complete Front-End Logic Script Module -->
     <script type="module">
-import { API_BASE } from '../js/apiConfig.js';
+        import { API_BASE } from '../js/apiConfig.js';
 
         const API = `${API_BASE}/api`;
         let map;
@@ -509,16 +741,15 @@ import { API_BASE } from '../js/apiConfig.js';
                     if (res.ok) {
                         const data = await res.json();
                         currentNgoProfile = data.profile;
-                        populateUI(data.profile, data.activeMissions, data.resolutionHistory, data.aiInsights, data.documents);
+                        populateUI(data);
                         initMap(data.activeMissions, data.resolutionHistory, data.profile);
                         renderCharts(data.profile, data.resolutionHistory);
                         initSocket(data.profile._id);
-                        return; // Successfully loaded own profile, stop here
+                        return;
                     }
                 } catch (e) { console.warn("Failed to fetch /me profile", e); }
             }
 
-            // Fallback to loaded ID
             if (queriedId) {
                 initProfile(queriedId);
                 initSocket(queriedId);
@@ -548,12 +779,8 @@ import { API_BASE } from '../js/apiConfig.js';
 
         function initSocket(ngoId) {
             try {
-                socket = io(API, { transports: ['websocket', 'polling'] });
-                // We could listen to specific events if implemented on the backend.
-                // Assuming global 'case_assigned' or similar. 
-                // We'll simulate refresh if we see a relevant message
+                socket = io(API_BASE, { transports: ['websocket', 'polling'] });
                 socket.on('chat_message', (msg) => {
-                    // Refresh data mildly
                     if (msg.text.includes('dispatch') || msg.text.includes('assigned')) {
                         initProfile(ngoId, true);
                     }
@@ -576,12 +803,12 @@ import { API_BASE } from '../js/apiConfig.js';
 
                 currentNgoProfile = data.profile;
 
-                populateUI(data.profile, data.activeMissions, data.resolutionHistory, data.aiInsights, data.documents);
+                populateUI(data);
                 if (!silent) initMap(data.activeMissions, data.resolutionHistory, data.profile);
                 renderCharts(data.profile, data.resolutionHistory);
 
             } catch (e) {
-                console.error("Failed", e);
+                console.error("Failed loading NGO profile:", e);
                 if (!silent) {
                     document.getElementById('ngo-name-hero').innerText = "Database Disconnected";
                     document.getElementById('p-mission').innerText = `Error: ${e.message || 'Could not fetch NGO intelligence.'}`;
@@ -589,84 +816,136 @@ import { API_BASE } from '../js/apiConfig.js';
             }
         }
 
-        function populateUI(ngo, activeMsns, pastMsns, insights, docs) {
-            // Check Auth for buttons. Authority users get to edit their matched NGO profile.
-            if (currentUser && currentUser.role === 'authority') {
-                document.getElementById('btn-edit-profile').classList.remove('hidden');
+        function switchProfileTab(tabId) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            // Show target panel
+            document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+
+            // Reset all tab buttons classes
+            document.querySelectorAll('#ngo-profile-tabs button').forEach(btn => {
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-slate-500', 'hover:text-slate-900');
+            });
+
+            // Highlight target tab button
+            const targetBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (targetBtn) {
+                targetBtn.classList.remove('border-transparent', 'text-slate-500', 'hover:text-slate-900');
+                targetBtn.classList.add('border-primary', 'text-primary');
+            }
+
+            // Load session information if security tab is active
+            if (tabId === 'security') {
+                loadSessionInfo();
+            }
+        }
+
+        function populateUI(data) {
+            const ngo = data.profile;
+            const stats = data.stats;
+            const achievements = data.achievements;
+            const completion = data.profileCompletionPercentage;
+            const timeline = data.activityTimeline;
+            const activeMsns = data.activeMissions;
+            const pastMsns = data.resolutionHistory;
+            const insights = data.aiInsights;
+            const docs = data.documents;
+
+            const isOwner = currentUser && currentUser.email === ngo.email;
+
+            // Hide/Show Admin controls and tabs based on ownership
+            if (isOwner) {
+                document.getElementById('tab-btn-settings').classList.remove('hidden');
+                document.getElementById('tab-btn-security').classList.remove('hidden');
+                document.getElementById('profile-completion-card').classList.remove('hidden');
                 document.getElementById('btn-message')?.classList.add('hidden');
                 document.getElementById('btn-assign')?.classList.add('hidden');
+            } else {
+                document.getElementById('tab-btn-settings').classList.add('hidden');
+                document.getElementById('tab-btn-security').classList.add('hidden');
+                document.getElementById('profile-completion-card').classList.add('hidden');
+                document.getElementById('btn-message')?.classList.remove('hidden');
+                document.getElementById('btn-assign')?.classList.remove('hidden');
             }
-            // Header
+
+            // Header Elements
             document.getElementById('ngo-name-hero').innerText = ngo.name;
             document.getElementById('ngo-avatar-hero').innerText = ngo.name.charAt(0);
+            if (ngo.logo && ngo.logo.length > 5) {
+                document.getElementById('ngo-avatar-hero').innerHTML = `<img src="${ngo.logo}" class="w-full h-full object-cover rounded-xl" alt="NGO Logo">`;
+            }
+
             if (ngo.isVerified) {
                 document.getElementById('ngo-badge-hero').classList.remove('hidden');
+            } else {
+                document.getElementById('ngo-badge-hero').classList.add('hidden');
             }
 
             const statusColor = ngo.operatingStatus === 'Active' ? 'text-emerald-500' : (ngo.operatingStatus === 'Busy' ? 'text-amber-500' : 'text-slate-400');
-            document.getElementById('ngo-status-hero').innerHTML = `<span class="font-black uppercase text-[10px] tracking-widest ${statusColor} bg-white px-2 py-0.5 rounded shadow-sm">● ${ngo.operatingStatus || 'Active'}</span>`;
+            document.getElementById('ngo-status-hero').innerHTML = `<span class="font-black uppercase text-[10px] tracking-widest ${statusColor} bg-white px-2 py-0.5 rounded shadow-sm border border-slate-100">● ${ngo.operatingStatus || 'Active'}</span>`;
 
-            // Stats
-            document.getElementById('stat-cases-resolved').innerText = ngo.totalIssuesHandled || pastMsns.length;
-            document.getElementById('stat-active-missions').innerText = activeMsns.length;
-            document.getElementById('stat-avg-response').innerText = (ngo.averageResponseTime || 1.8).toFixed(1);
-            document.getElementById('stat-rating').innerText = (ngo.rating || 5.0).toFixed(1);
+            // Dynamic Stats Cards
+            document.getElementById('stat-cases-claimed').innerText = stats.totalIssuesClaimed;
+            document.getElementById('stat-cases-resolved').innerText = stats.totalIssuesResolved;
+            document.getElementById('stat-active-missions').innerText = stats.activeCases;
+            document.getElementById('stat-success-rate').innerText = stats.resolutionSuccessRate;
+            document.getElementById('stat-avg-response').innerText = stats.averageResponseTime.toFixed(1);
+            document.getElementById('stat-community-reach').innerText = stats.communityReach;
+            document.getElementById('stat-impact-score').innerText = stats.totalCommunityImpactScore;
+            document.getElementById('stat-rating').innerText = stats.ngoRating.toFixed(1);
 
-            // About
-            document.getElementById('p-mission').innerText = ngo.missionStatement || `An environmental civic partner specializing in ${ngo.specialization}.`;
-            document.getElementById('p-founded').innerText = ngo.foundedYear || '2019';
+            // About Section Info
+            document.getElementById('p-mission').innerText = ngo.missionStatement || `Civic partner specializing in ${ngo.specialization}.`;
+            document.getElementById('p-founded').innerText = ngo.foundedYear || 'N/A';
             document.getElementById('p-spec').innerText = ngo.specialization;
 
             const expDiv = document.getElementById('p-expertise');
-            const expList = ngo.areasOfExpertise && ngo.areasOfExpertise.length > 0 ? ngo.areasOfExpertise : [ngo.specialization, 'Urban Cleanup', 'Verification'];
+            const expList = ngo.areasOfExpertise && ngo.areasOfExpertise.length > 0 ? ngo.areasOfExpertise : [ngo.specialization, 'Civic Action'];
             expDiv.innerHTML = expList.map(e => `<span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-widest">${e}</span>`).join('');
 
             // Contacts
-            document.getElementById('c-director').innerText = ngo.directorName || 'Command Liaison';
-            document.getElementById('c-emergency').innerText = ngo.emergencyContact || '+1 (555) 019-2041';
-            document.getElementById('c-hq').innerText = ngo.headquarters || ngo.location?.address || 'Central District';
+            document.getElementById('c-director').innerText = ngo.directorName || 'Unknown Liaison';
+            document.getElementById('c-emergency').innerText = ngo.emergencyContact || 'Not Specified';
+            document.getElementById('c-hq').innerText = ngo.headquarters || ngo.location?.address || 'HQ Address';
 
-            // Avatar/Logo
-            if (ngo.logo && ngo.logo.length > 5) {
-                document.getElementById('ngo-avatar-hero').innerHTML = `<img src="${ngo.logo}" class="w-full h-full object-cover">`;
-            } else {
-                document.getElementById('ngo-avatar-hero').innerText = ngo.name.charAt(0);
-            }
+            const emailLink = document.getElementById('link-email');
+            const webLink = document.getElementById('link-website');
+            if (ngo.email) emailLink.href = `mailto:${ngo.email}`;
+            if (ngo.website) webLink.href = ngo.website.startsWith('http') ? ngo.website : `https://${ngo.website}`;
 
-            // Emails / Website dynamic link update
-            const emailNetworkLink = document.getElementById('link-email');
-            const publicSiteLink = document.getElementById('link-website');
-
-            if (emailNetworkLink && ngo.email) {
-                emailNetworkLink.href = `mailto:${ngo.email}`;
-            }
-            if (publicSiteLink && ngo.website) {
-                publicSiteLink.href = ngo.website.startsWith('http') ? ngo.website : `https://${ngo.website}`;
-            }
-
-            // Documents
+            // Verification Documents
             const docsDiv = document.getElementById('documents-list');
-            if (docsDiv) {
-                if (!docs || docs.length === 0) {
-                    docsDiv.innerHTML = '<p class="text-xs text-slate-400 italic">No verified documents available.</p>';
-                } else {
-                    docsDiv.innerHTML = docs.map(d => `
-                        <div onclick="window.open('${d.url || '#'}', '_blank')" class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200 group cursor-pointer hover:bg-slate-100 transition-all">
-                            <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">download</span>
-                                <span class="text-xs font-bold text-slate-700">${d.title}</span>
-                            </div>
-                            <span class="material-symbols-outlined ${d.isVerified ? 'text-primary' : 'text-slate-300'} text-[16px]">${d.isVerified ? 'verified' : 'pending'}</span>
+            if (!docs || docs.length === 0) {
+                docsDiv.innerHTML = '<p class="text-xs text-slate-400 italic">No verified documents available.</p>';
+            } else {
+                docsDiv.innerHTML = docs.map(d => `
+                    <div onclick="window.open('${d.url || '#'}', '_blank')" class="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-200 group cursor-pointer hover:bg-slate-100 transition-all">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">download</span>
+                            <span class="text-xs font-bold text-slate-700">${d.title}</span>
                         </div>
-                    `).join('');
-                }
+                        <span class="material-symbols-outlined ${d.isVerified ? 'text-primary' : 'text-slate-350'} text-[16px]">${d.isVerified ? 'verified' : 'pending'}</span>
+                    </div>
+                `).join('');
             }
 
-            // Lists
+            // AI Insights
+            const aiList = document.getElementById('ai-insights-list');
+            aiList.innerHTML = insights.map((ins, i) => `
+                <li class="text-sm font-medium text-indigo-150 flex items-start gap-2 bg-indigo-500/10 p-3 rounded-lg border border-indigo-400/20 shadow-sm animate-fade-in" style="animation-delay: ${i * 150}ms">
+                    <span class="material-symbols-outlined text-indigo-400 text-sm mt-0.5 flex-shrink-0 w-4">neurology</span>
+                    <span>${ins}</span>
+                </li>
+            `).join('');
+
+            // Active Missions table
             document.getElementById('mission-count').innerText = `${activeMsns.length} Assigned`;
             const actTbody = document.getElementById('active-missions-body');
             if (activeMsns.length === 0) {
-                actTbody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-xs italic text-slate-400">No active operational missions.</td></tr>`;
+                actTbody.innerHTML = `<tr><td colspan="3" class="px-6 py-8 text-center text-slate-400 text-xs italic">No active missions.</td></tr>`;
             } else {
                 actTbody.innerHTML = activeMsns.map(m => `
                     <tr class="hover:bg-slate-50 transition-colors">
@@ -682,18 +961,19 @@ import { API_BASE } from '../js/apiConfig.js';
                 `).join('');
             }
 
+            // Case Resolution Log
             const pTbody = document.getElementById('resolution-history-body');
             if (pastMsns.length === 0) {
-                pTbody.innerHTML = `<tr><td class="px-5 py-4 text-xs italic text-slate-400">No history available in ledger.</td></tr>`;
+                pTbody.innerHTML = `<tr><td class="px-5 py-6 text-center text-slate-400 text-xs italic">No resolution history.</td></tr>`;
             } else {
                 pTbody.innerHTML = pastMsns.map(m => `
-                    <tr class="hover:bg-slate-50">
+                    <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-5 py-3.5">
                             <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-emerald-500 text-[16px]">check_circle</span>
+                                <span class="material-symbols-outlined text-emerald-500 text-[18px]">check_circle</span>
                                 <div>
                                     <p class="font-bold text-slate-900">${m.title || m.category}</p>
-                                    <p class="text-[9px] text-slate-400 font-mono tracking-widest">${new Date(m.updatedAt || Date.now()).toLocaleDateString()}</p>
+                                    <p class="text-[9px] text-slate-400 font-mono tracking-widest">${new Date(m.resolvedDate || m.updatedAt).toLocaleDateString()}</p>
                                 </div>
                             </div>
                         </td>
@@ -701,24 +981,103 @@ import { API_BASE } from '../js/apiConfig.js';
                 `).join('');
             }
 
-            // AI Insights
-            const aiList = document.getElementById('ai-insights-list');
-            aiList.innerHTML = insights.map((ins, i) => `
-                <li class="text-sm font-medium text-indigo-100 flex items-start gap-2 bg-indigo-500/10 p-3 rounded-lg border border-indigo-400/20 shadow-sm animate-fade-in" style="animation-delay: ${i * 150}ms">
-                    <span class="material-symbols-outlined text-indigo-400 text-sm mt-0.5 flex-shrink-0 w-4">neurology</span>
-                    <span>${ins}</span>
-                </li>
-            `).join('');
+            // Profile Completion Progress
+            document.getElementById('completion-percentage-text').innerText = `${completion}%`;
+            document.getElementById('completion-percentage-bar').style.width = `${completion}%`;
+
+            // Activity Timeline
+            const timelineDiv = document.getElementById('activity-timeline-list');
+            if (!timeline || timeline.length === 0) {
+                timelineDiv.innerHTML = '<p class="text-xs text-slate-400 italic">No activity recorded yet.</p>';
+            } else {
+                timelineDiv.innerHTML = timeline.map(item => {
+                    let color = 'bg-slate-400';
+                    let icon = 'help';
+                    if (item.type === 'join') { color = 'bg-blue-500'; icon = 'login'; }
+                    else if (item.type === 'resolution') { color = 'bg-emerald-500'; icon = 'check'; }
+                    else if (item.type === 'achievement') { color = 'bg-amber-500'; icon = 'emoji_events'; }
+                    
+                    return `
+                        <div class="relative pb-6">
+                            <div class="absolute -left-[31px] top-1.5 size-5 rounded-full ${color} flex items-center justify-center text-white ring-4 ring-white shadow-sm">
+                                <span class="material-symbols-outlined text-[10px]">${icon}</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-900">${item.title}</h4>
+                                <p class="text-[11px] text-slate-500 mt-0.5">${item.description}</p>
+                                <span class="text-[9px] font-mono text-slate-400 tracking-wider uppercase block mt-1">${new Date(item.date).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Achievements Grid
+            const achGrid = document.getElementById('achievements-list-grid');
+            achGrid.innerHTML = achievements.map(ach => {
+                const earnedClass = ach.earned ? 'badge-earned' : 'badge-locked';
+                const colorClass = ach.earned ? 'text-amber-500' : 'text-slate-350';
+                return `
+                    <div class="badge-card ${earnedClass}">
+                        <div class="size-12 rounded-full bg-white flex items-center justify-center shadow-inner mb-3 border border-slate-200">
+                            <span class="material-symbols-outlined text-2xl ${colorClass}">${ach.icon}</span>
+                        </div>
+                        <h4 class="text-xs font-extrabold text-slate-900 tracking-tight text-center">${ach.title}</h4>
+                        <p class="text-[10px] text-slate-500 mt-1 text-center font-medium leading-relaxed flex-1">${ach.description}</p>
+                        ${ach.earned ? `
+                            <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100/50 px-2 py-0.5 rounded-full mt-3 uppercase tracking-wider">Unlocked</span>
+                        ` : `
+                            <span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full mt-3 uppercase tracking-wider">Locked</span>
+                        `}
+                    </div>
+                `;
+            }).join('');
+
+            // Pre-populate settings inputs (if owner)
+            if (isOwner) {
+                document.getElementById('settings-name').value = ngo.name || '';
+                document.getElementById('settings-reg-number').value = ngo.registrationNumber || '';
+                document.getElementById('settings-mission').value = ngo.missionStatement || '';
+                document.getElementById('settings-spec').value = ngo.specialization || '';
+                document.getElementById('settings-expertise').value = (ngo.extendedExpertise || []).join(', ');
+                document.getElementById('settings-founded').value = ngo.foundedYear || '';
+                document.getElementById('settings-director').value = ngo.directorName || '';
+                document.getElementById('settings-email').value = ngo.email || '';
+                document.getElementById('settings-emergency').value = ngo.emergencyContact || '';
+                document.getElementById('settings-phone').value = ngo.phone || '';
+                document.getElementById('settings-website').value = ngo.website || '';
+                document.getElementById('settings-hq').value = ngo.headquarters || ngo.location?.address || '';
+                document.getElementById('settings-regions').value = (ngo.operationalRegions || []).join(', ');
+                document.getElementById('settings-logo-url').value = ngo.logo || '';
+                
+                // Settings logo preview
+                const logoWrap = document.getElementById('settings-logo-preview-wrap');
+                const logoInitial = document.getElementById('settings-logo-initial');
+                if (ngo.logo && ngo.logo.length > 5) {
+                    logoWrap.innerHTML = `<img src="${ngo.logo}" class="w-full h-full object-cover" id="settings-logo-preview">`;
+                } else {
+                    logoInitial.textContent = ngo.name.charAt(0);
+                }
+
+                // Security card pre-fills
+                document.getElementById('sec-ngo-id').innerText = ngo._id;
+                document.getElementById('sec-verified-status').innerText = ngo.isVerified ? 'VERIFIED' : 'PENDING';
+                document.getElementById('sec-verified-status').className = ngo.isVerified 
+                    ? 'text-xs font-bold text-emerald-400 uppercase'
+                    : 'text-xs font-bold text-amber-400 uppercase';
+                document.getElementById('sec-joined-date').innerText = new Date(ngo.createdAt).toLocaleDateString(undefined, {month:'short', year:'numeric'});
+                document.getElementById('sec-new-email').value = ngo.email || '';
+            }
         }
 
         function initMap(activeMsns, pastMsns, ngo) {
+            if (map) { map.remove(); }
             const center = [ngo.location?.latitude || 37.7749, ngo.location?.longitude || -122.4194];
             map = L.map('ngo-map', { zoomControl: false }).setView(center, 12);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
 
             const markers = [];
 
-            // Add Active (Yellow)
             activeMsns.forEach(m => {
                 if (m.latitude && m.longitude) {
                     const icon = L.divIcon({ html: `<div style="background:#f59e0b; width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow:0 0 4px rgba(0,0,0,0.5);"></div>`, className: '', iconSize: [12, 12] });
@@ -727,8 +1086,6 @@ import { API_BASE } from '../js/apiConfig.js';
                 }
             });
 
-            // Add Resolved (Green)
-            // Just map up to 10 past missions to avoid clutter
             pastMsns.slice(0, 10).forEach(m => {
                 if (m.latitude && m.longitude) {
                     const icon = L.divIcon({ html: `<div style="background:#10b981; width:8px; height:8px; border-radius:50%; border:1px solid white;"></div>`, className: '', iconSize: [8, 8] });
@@ -744,29 +1101,24 @@ import { API_BASE } from '../js/apiConfig.js';
         }
 
         function renderCharts(ngo, pastMsns) {
-            // Aggregate Real Data for Category Distribution
             const categoryCounts = {};
-            // Array of months
             const monthlyCounts = { 'Oct': 0, 'Nov': 0, 'Dec': 0, 'Jan': 0, 'Feb': 0, 'Mar': 0 };
 
             pastMsns.forEach(m => {
                 categoryCounts[m.category] = (categoryCounts[m.category] || 0) + 1;
-
-                const d = new Date(m.updatedAt || m.createdAt);
+                const d = new Date(m.resolvedDate || m.updatedAt || m.createdAt);
                 const month = d.toLocaleString('default', { month: 'short' });
                 if (monthlyCounts[month] !== undefined) {
                     monthlyCounts[month]++;
                 }
             });
 
-            // Default to mock data if empty history for aesthetics
             const months = Object.keys(monthlyCounts);
-            const trendData = pastMsns.length > 0 ? Object.values(monthlyCounts) : [2, 5, 8, 4, 12, 18].map(x => x + Math.floor(ngo.totalIssuesHandled / 10));
+            const trendData = pastMsns.length > 0 ? Object.values(monthlyCounts) : [2, 5, 8, 4, 12, 18];
 
-            const catLabels = Object.keys(categoryCounts).length > 0 ? Object.keys(categoryCounts) : [ngo.specialization, 'General Aid', 'Urgent Ops'];
-            const catData = Object.keys(categoryCounts).length > 0 ? Object.values(categoryCounts) : [65, 25, 10];
+            const catLabels = Object.keys(categoryCounts).length > 0 ? Object.keys(categoryCounts) : [ngo.specialization || 'General Cleanup'];
+            const catData = Object.keys(categoryCounts).length > 0 ? Object.values(categoryCounts) : [100];
 
-            // Destroy previous charts specifically if rendering dynamically on socket update
             if (window.chartRes) window.chartRes.destroy();
             if (window.chartCat) window.chartCat.destroy();
 
@@ -817,49 +1169,35 @@ import { API_BASE } from '../js/apiConfig.js';
             });
         }
 
-        // Edit Profile Logic
-        function openEditModal() {
-            if (!currentNgoProfile) return;
-            document.getElementById('edit-name').value = currentNgoProfile.name || '';
-            document.getElementById('edit-founded').value = currentNgoProfile.foundedYear || '';
-            document.getElementById('edit-mission').value = currentNgoProfile.missionStatement || '';
-            document.getElementById('edit-spec').value = currentNgoProfile.specialization || '';
-            document.getElementById('edit-expertise').value = (currentNgoProfile.extendedExpertise || []).join(', ');
-            document.getElementById('edit-director').value = currentNgoProfile.directorName || '';
-            document.getElementById('edit-emergency').value = currentNgoProfile.emergencyContact || '';
-            document.getElementById('edit-hq').value = currentNgoProfile.headquarters || '';
-            document.getElementById('edit-regions').value = (currentNgoProfile.operationalRegions || []).join(', ');
-            document.getElementById('edit-logo').value = currentNgoProfile.logo || '';
-            document.getElementById('edit-email').value = currentNgoProfile.email || '';
-            document.getElementById('edit-website').value = currentNgoProfile.website || '';
-
-            document.getElementById('editProfileModal').classList.remove('hidden');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editProfileModal').classList.add('hidden');
-        }
-
-        async function saveProfile() {
+        // Settings Form submit
+        async function saveProfileSettings() {
             if (!currentNgoProfile || !currentNgoProfile._id) return;
 
-            const btn = document.querySelector('#editProfileFooter button:last-child');
+            const btn = document.getElementById('btn-save-settings');
             const originalText = btn.innerHTML;
-            btn.innerHTML = `<span class="material-symbols-outlined text-[16px] animate-spin">refresh</span> Saving...`;
+            btn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Saving...`;
+            btn.disabled = true;
+
+            const successAlert = document.getElementById('settings-alert-success');
+            const errorAlert = document.getElementById('settings-alert-error');
+            successAlert.classList.add('hidden');
+            errorAlert.classList.add('hidden');
 
             const payload = {
-                name: document.getElementById('edit-name').value,
-                foundedYear: document.getElementById('edit-founded').value,
-                missionStatement: document.getElementById('edit-mission').value,
-                specialization: document.getElementById('edit-spec').value,
-                extendedExpertise: document.getElementById('edit-expertise').value,
-                directorName: document.getElementById('edit-director').value,
-                emergencyContact: document.getElementById('edit-emergency').value,
-                headquarters: document.getElementById('edit-hq').value,
-                operationalRegions: document.getElementById('edit-regions').value,
-                logo: document.getElementById('edit-logo').value,
-                email: document.getElementById('edit-email').value,
-                website: document.getElementById('edit-website').value,
+                name: document.getElementById('settings-name').value,
+                registrationNumber: document.getElementById('settings-reg-number').value,
+                missionStatement: document.getElementById('settings-mission').value,
+                specialization: document.getElementById('settings-spec').value,
+                extendedExpertise: document.getElementById('settings-expertise').value,
+                foundedYear: document.getElementById('settings-founded').value,
+                directorName: document.getElementById('settings-director').value,
+                email: document.getElementById('settings-email').value,
+                emergencyContact: document.getElementById('settings-emergency').value,
+                phone: document.getElementById('settings-phone').value,
+                website: document.getElementById('settings-website').value,
+                headquarters: document.getElementById('settings-hq').value,
+                operationalRegions: document.getElementById('settings-regions').value,
+                logo: document.getElementById('settings-logo-url').value,
             };
 
             try {
@@ -872,32 +1210,245 @@ import { API_BASE } from '../js/apiConfig.js';
                     body: JSON.stringify(payload)
                 });
 
+                const data = await res.json();
                 if (res.ok) {
-                    closeEditModal();
+                    successAlert.classList.remove('hidden');
                     // Refresh data
                     initProfile(currentNgoProfile._id, true);
+                    // Scroll to top of settings container
+                    document.getElementById('tab-content-settings').scrollIntoView({ behavior: 'smooth' });
                 } else {
-                    const data = await res.json();
-                    alert("Failed to update: " + data.error);
+                    document.getElementById('settings-alert-error-text').innerText = data.error || 'Failed to preserve profile data.';
+                    errorAlert.classList.remove('hidden');
+                    document.getElementById('tab-content-settings').scrollIntoView({ behavior: 'smooth' });
                 }
             } catch (e) {
                 console.error(e);
-                alert("An error occurred preserving data.");
+                document.getElementById('settings-alert-error-text').innerText = 'An error occurred during submission.';
+                errorAlert.classList.remove('hidden');
             } finally {
                 btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
-    
-window.checkAuth = checkAuth;
-window.initSocket = initSocket;
-window.initProfile = initProfile;
-window.populateUI = populateUI;
-window.initMap = initMap;
-window.renderCharts = renderCharts;
-window.openEditModal = openEditModal;
-window.closeEditModal = closeEditModal;
-window.saveProfile = saveProfile;
-</script>
+
+        function resetSettingsForm() {
+            if (currentNgoProfile) {
+                populateUI({
+                    profile: currentNgoProfile,
+                    stats: {
+                        totalIssuesClaimed: Number(document.getElementById('stat-cases-claimed').innerText) || 0,
+                        totalIssuesResolved: Number(document.getElementById('stat-cases-resolved').innerText) || 0,
+                        activeCases: Number(document.getElementById('stat-active-missions').innerText) || 0,
+                        resolutionSuccessRate: Number(document.getElementById('stat-success-rate').innerText) || 0,
+                        averageResponseTime: Number(document.getElementById('stat-avg-response').innerText) || 0,
+                        ngoRating: Number(document.getElementById('stat-rating').innerText) || 5.0,
+                        totalCommunityImpactScore: Number(document.getElementById('stat-impact-score').innerText) || 0,
+                        communityReach: Number(document.getElementById('stat-community-reach').innerText) || 0
+                    },
+                    achievements: [],
+                    profileCompletionPercentage: Number(document.getElementById('completion-percentage-text').innerText.replace('%','')) || 0,
+                    activityTimeline: [],
+                    activeMissions: [],
+                    resolutionHistory: [],
+                    aiInsights: [],
+                    documents: []
+                });
+            }
+        }
+
+        // File logo selection to Base64
+        async function handleLogoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const indicator = document.getElementById('settings-save-indicator');
+            indicator.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64String = reader.result;
+                try {
+                    const res = await fetch(`${API}/ngo/${currentNgoProfile._id}/logo`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ logo: base64String })
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        document.getElementById('settings-logo-url').value = data.logo;
+                        document.getElementById('settings-logo-preview-wrap').innerHTML = `<img src="${data.logo}" class="w-full h-full object-cover" id="settings-logo-preview">`;
+                        initProfile(currentNgoProfile._id, true);
+                    } else {
+                        const err = await res.json();
+                        alert("Logo upload failed: " + err.error);
+                    }
+                } catch (e) {
+                    console.error("Upload error:", e);
+                    alert("Network error upload logo.");
+                } finally {
+                    indicator.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Password change submit
+        async function submitPasswordChange() {
+            const currentPass = document.getElementById('sec-current-password').value;
+            const newPass = document.getElementById('sec-new-password').value;
+            const confirmPass = document.getElementById('sec-confirm-password').value;
+
+            const successAlert = document.getElementById('security-alert-success');
+            const errorAlert = document.getElementById('security-alert-error');
+            successAlert.classList.add('hidden');
+            errorAlert.classList.add('hidden');
+
+            if (newPass !== confirmPass) {
+                document.getElementById('security-alert-error-text').innerText = "New passwords do not match.";
+                errorAlert.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('btn-update-password');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">refresh</span> Updating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API}/ngo/${currentNgoProfile._id}/security`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        action: 'password',
+                        currentPassword: currentPass,
+                        newPassword: newPass
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    successAlert.classList.remove('hidden');
+                    document.getElementById('securityPasswordForm').reset();
+                } else {
+                    document.getElementById('security-alert-error-text').innerText = data.error || 'Failed to update password.';
+                    errorAlert.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('security-alert-error-text').innerText = 'An error occurred during password change.';
+                errorAlert.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Email address update submit
+        async function submitEmailUpdate() {
+            const newEmail = document.getElementById('sec-new-email').value;
+
+            const successAlert = document.getElementById('email-alert-success');
+            const errorAlert = document.getElementById('email-alert-error');
+            successAlert.classList.add('hidden');
+            errorAlert.classList.add('hidden');
+
+            const btn = document.getElementById('btn-update-email');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">refresh</span> Updating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API}/ngo/${currentNgoProfile._id}/security`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        action: 'email',
+                        newEmail: newEmail
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    successAlert.classList.remove('hidden');
+                    // Save new token and user email locally
+                    localStorage.setItem('token', data.token);
+                    if (currentUser) {
+                        currentUser.email = newEmail;
+                    }
+                    initProfile(currentNgoProfile._id, true);
+                } else {
+                    document.getElementById('email-alert-error-text').innerText = data.error || 'Failed to update email.';
+                    errorAlert.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('email-alert-error-text').innerText = 'An error occurred during email update.';
+                errorAlert.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Fetch session information
+        async function loadSessionInfo() {
+            if (!currentNgoProfile) return;
+            try {
+                const res = await fetch(`${API}/ngo/${currentNgoProfile._id}/security`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ action: 'session' })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('sec-password-strength').innerText = data.securityStatus.strength;
+                    
+                    const sessionTbody = document.getElementById('session-logs-body');
+                    sessionTbody.innerHTML = `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="py-3 pr-4 font-mono font-bold text-slate-700">${data.ip}</td>
+                            <td class="py-3 px-4 text-slate-600 font-medium truncate max-w-[200px]" title="${data.userAgent}">${data.userAgent}</td>
+                            <td class="py-3 px-4 text-slate-500 font-medium">${new Date(data.lastActive).toLocaleTimeString()}</td>
+                            <td class="py-3 pl-4 text-right">
+                                <span class="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 font-extrabold text-[9px] rounded-full uppercase tracking-wider">Current Session</span>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (e) {
+                console.error("Failed to load session details:", e);
+            }
+        }
+
+        window.checkAuth = checkAuth;
+        window.initSocket = initSocket;
+        window.initProfile = initProfile;
+        window.switchProfileTab = switchProfileTab;
+        window.populateUI = populateUI;
+        window.initMap = initMap;
+        window.renderCharts = renderCharts;
+        window.saveProfileSettings = saveProfileSettings;
+        window.resetSettingsForm = resetSettingsForm;
+        window.handleLogoUpload = handleLogoUpload;
+        window.submitPasswordChange = submitPasswordChange;
+        window.submitEmailUpdate = submitEmailUpdate;
+        window.loadSessionInfo = loadSessionInfo;
+    </script>
 </body>
 
 </html>

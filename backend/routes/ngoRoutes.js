@@ -18,5 +18,7 @@ router.get('/chat/summary/:issueId', ngoController.getChatSummary);
 router.get('/me', ngoController.getMyNGOProfile);
 router.get('/:ngoId', ngoController.getNGOProfile);
 router.put('/:ngoId/update', ngoController.updateNGOProfile);
+router.post('/:ngoId/logo', ngoController.uploadNGOLogo);
+router.post('/:ngoId/security', ngoController.updateNGOSecurity);
 
 module.exports = router;

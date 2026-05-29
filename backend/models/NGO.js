@@ -28,7 +28,9 @@ const NGOSchema = new mongoose.Schema({
     directorName: { type: String },
     emergencyContact: { type: String },
     email: { type: String },
-    website: { type: String }
+    website: { type: String },
+    registrationNumber: { type: String },
+    phone: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('NGO', NGOSchema);
