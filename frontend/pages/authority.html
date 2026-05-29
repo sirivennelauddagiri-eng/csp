@@ -36,59 +36,131 @@
             },
         }
 
+        let activeResolvedHistoryForChart = [];
+
         async function openNgoSidebar(ngoId) {
             const sidebar = document.getElementById('ngoProfileSidebar');
             const overlay = document.getElementById('ngoProfileOverlay');
             const token = localStorage.getItem('token');
+            const API = window.API_BASE ? `${window.API_BASE}/api` : 'http://localhost:5000/api';
+
+            activeResolvedHistoryForChart = [];
 
             try {
                 document.getElementById('sidebar-ngo-name').innerText = 'Loading...';
                 document.getElementById('sidebar-ngo-spec').innerText = 'Please wait';
 
                 let targetId = ngoId;
-                
+                let profileData = null;
+
                 if (!targetId) {
-                    // Fetch dynamic NGO data for the sidebar
-                    const res = await fetch(`${API}/ngo/directory`, {
+                    // Try to fetch logged-in authority's own NGO profile first
+                    const meRes = await fetch(`${API}/ngo/me`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    if (res.ok) {
-                        const ngos = await res.json();
-                        if (ngos && ngos.length > 0) {
-                            targetId = ngos[0]._id;
+                    if (meRes.ok) {
+                        profileData = await meRes.json();
+                        targetId = profileData.profile._id;
+                    } else {
+                        // Fallback to directory first element
+                        const dirRes = await fetch(`${API}/ngo/directory`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (dirRes.ok) {
+                            const ngos = await dirRes.json();
+                            if (ngos && ngos.length > 0) {
+                                targetId = ngos[0]._id;
+                            }
                         }
                     }
                 }
 
-                if (targetId) {
+                if (targetId && !profileData) {
                     // Fetch deep metrics matching the ngo-profile calculation logic
                     const profileRes = await fetch(`${API}/ngo/${targetId}`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    
                     if (profileRes.ok) {
-                        const profileData = await profileRes.json();
-                        const profile = profileData.profile;
-
-                        document.getElementById('sidebar-ngo-name').innerText = profile.name;
-                        document.getElementById('sidebar-ngo-spec').innerText = profile.specialization || 'Environmental Response Partner';
-                        document.getElementById('sidebar-ngo-avatar').innerText = profile.name.charAt(0).toUpperCase();
-
-                        document.getElementById('sidebar-ngo-cases').innerText = profileData.resolutionHistory ? profileData.resolutionHistory.length : (profile.totalIssuesHandled || 0);
-
-                        const activeEl = document.getElementById('sidebar-ngo-active');
-                        if (activeEl) {
-                            activeEl.innerText = profileData.activeMissions ? profileData.activeMissions.length : 0;
-                        }
-
-                        document.getElementById('sidebar-ngo-rating').innerText = (profile.rating || 5.0).toFixed(1);
-
-                        // Setup link to full profile page
-                        document.getElementById('sidebar-full-profile-btn').href = `ngo-profile.html?id=${targetId}`;
-
-                        // Call backend AI Insights if necessary
-                        document.getElementById('sidebar-ngo-ai-insight').innerHTML = profileData.aiInsights && profileData.aiInsights[0] ? `"${profileData.aiInsights[0]}"` : `"${profile.name} resolves incidents <span class="text-emerald-400 font-bold">highly effectively</span> compared to regional averages. Highly recommended."`;
+                        profileData = await profileRes.json();
                     }
+                }
+
+                if (profileData) {
+                    const profile = profileData.profile;
+                    activeResolvedHistoryForChart = profileData.resolutionHistory || [];
+
+                    document.getElementById('sidebar-ngo-name').innerText = profile.name;
+                    document.getElementById('sidebar-ngo-spec').innerText = profile.specialization || 'Environmental Response Partner';
+                    document.getElementById('sidebar-ngo-avatar').innerText = profile.name.charAt(0).toUpperCase();
+
+                    document.getElementById('sidebar-ngo-cases').innerText = profileData.resolutionHistory ? profileData.resolutionHistory.length : (profile.totalIssuesHandled || 0);
+
+                    const activeEl = document.getElementById('sidebar-ngo-active');
+                    if (activeEl) {
+                        activeEl.innerText = profileData.activeMissions ? profileData.activeMissions.length : 0;
+                    }
+
+                    const ratingEl = document.getElementById('sidebar-ngo-rating');
+                    if (ratingEl) {
+                        ratingEl.innerText = (profile.rating || 5.0).toFixed(1);
+                    }
+
+                    const responseEl = document.getElementById('sidebar-ngo-response');
+                    if (responseEl) {
+                        responseEl.innerText = profileData.stats && profileData.stats.averageResponseTime 
+                            ? profileData.stats.averageResponseTime.toFixed(1) 
+                            : (profile.averageResponseTime || 1.8).toFixed(1);
+                    }
+
+                    // Setup link to full profile page
+                    document.getElementById('sidebar-full-profile-btn').href = `ngo-profile.html?id=${targetId}`;
+
+                    // Update contact info in sidebar if elements exist
+                    const directorEl = document.getElementById('sidebar-ngo-director');
+                    if (directorEl) {
+                        directorEl.innerText = profile.directorName || 'N/A';
+                    }
+                    const phoneEl = document.getElementById('sidebar-ngo-phone');
+                    if (phoneEl) {
+                        phoneEl.innerText = profile.phone || profile.emergencyContact || 'N/A';
+                    }
+                    const regionsEl = document.getElementById('sidebar-ngo-regions');
+                    if (regionsEl) {
+                        regionsEl.innerText = Array.isArray(profile.operationalRegions) 
+                            ? profile.operationalRegions.join(', ') 
+                            : (profile.headquarters || 'N/A');
+                    }
+
+                    // Update active missions list if element exists
+                    const missionsListEl = document.getElementById('sidebar-active-missions-list');
+                    if (missionsListEl) {
+                        missionsListEl.innerHTML = '';
+                        const activeMissions = profileData.activeMissions || [];
+                        if (activeMissions.length === 0) {
+                            missionsListEl.innerHTML = `
+                                <div class="text-center py-4 text-xs text-slate-400 font-medium bg-white rounded-lg border border-slate-200/60 shadow-sm w-full col-span-2">
+                                    No active missions assigned
+                                </div>
+                            `;
+                        } else {
+                            activeMissions.slice(0, 3).forEach(mission => {
+                                missionsListEl.innerHTML += `
+                                    <div class="bg-white p-3 rounded-lg border border-slate-200/60 shadow-sm flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-800">${mission.title}</p>
+                                            <p class="text-[10px] text-slate-500 mt-0.5">${mission.location}</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[9px] font-bold uppercase tracking-wide">
+                                            In Progress
+                                        </span>
+                                    </div>
+                                `;
+                            });
+                        }
+                    }
+
+                    // Call backend AI Insights if necessary
+                    document.getElementById('sidebar-ngo-ai-insight').innerHTML = profileData.aiInsights && profileData.aiInsights[0] ? `"${profileData.aiInsights[0]}"` : `"${profile.name} resolves incidents <span class="text-emerald-400 font-bold">highly effectively</span> compared to regional averages. Highly recommended."`;
                 }
             } catch (err) {
                 console.error("Failed to load sidebar dynamic data", err);
@@ -104,7 +176,7 @@
             sidebar.classList.remove('translate-x-full');
 
             // Render Chart.js
-            setTimeout(renderSidebarChart, 300);
+            setTimeout(() => renderSidebarChart(activeResolvedHistoryForChart), 300);
         }
 
         function closeNgoSidebar() {
@@ -120,21 +192,40 @@
         }
 
         let sidebarChartInstance = null;
-        function renderSidebarChart() {
+        function renderSidebarChart(resolvedHistory = []) {
             const ctx = document.getElementById('sidebarResolutionChart').getContext('2d');
 
             if (sidebarChartInstance) {
                 sidebarChartInstance.destroy();
             }
 
+            // Calculate case resolution trends over last 6 months
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            const counts = [0, 0, 0, 0, 0, 0];
+            const now = new Date();
+
+            if (resolvedHistory && resolvedHistory.length > 0) {
+                resolvedHistory.forEach(issue => {
+                    const date = new Date(issue.resolvedDate || issue.updatedAt);
+                    const diffMonths = (now.getFullYear() - date.getFullYear()) * 12 + now.getMonth() - date.getMonth();
+                    if (diffMonths >= 0 && diffMonths < 6) {
+                        counts[5 - diffMonths]++;
+                    }
+                });
+            }
+
+            // Fallback to default display values if no resolved cases in database yet
+            const chartData = (resolvedHistory && resolvedHistory.length > 0) 
+                ? counts 
+                : [15, 28, 42, 38, 55, 60];
+
             sidebarChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    labels: months,
                     datasets: [{
                         label: 'Cases Resolved',
-                        // Mock randomizing the chart to look dynamic for now in the sidebar
-                        data: [15, 28, 42, 38, 55, Math.floor(Math.random() * 30) + 40],
+                        data: chartData,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 3,
@@ -410,7 +501,7 @@
                         <div
                             class="bg-white p-4 rounded-xl shadow-sm border border-slate-200/60 transition-transform hover:-translate-y-1">
                             <span class="material-symbols-outlined text-rose-500 mb-2 block">timer</span>
-                            <div class="text-2xl font-black text-slate-900 mb-0.5">1.8 <span
+                            <div class="text-2xl font-black text-slate-900 mb-0.5"><span id="sidebar-ngo-response">1.8</span> <span
                                     class="text-sm font-semibold text-slate-400">hrs</span></div>
                             <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Avg Response
                             </div>
@@ -456,7 +547,7 @@
                             <span class="material-symbols-outlined text-slate-400 text-[18px]">emergency</span> Active
                             Missions
                         </h4>
-                        <div class="space-y-3">
+                        <div class="space-y-3" id="sidebar-active-missions-list">
                             <div
                                 class="bg-white p-3 rounded-lg border border-slate-200/60 shadow-sm flex items-center justify-between">
                                 <div>
@@ -509,17 +600,17 @@
                             <div>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                                     Coordinator</p>
-                                <p class="text-xs font-semibold text-slate-800">Sarah Jenkins</p>
+                                <p class="text-xs font-semibold text-slate-800" id="sidebar-ngo-director">Sarah Jenkins</p>
                             </div>
                             <div>
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                                     Emergency Line</p>
-                                <p class="text-xs font-semibold text-slate-800">+1 (555) 890-1200</p>
+                                <p class="text-xs font-semibold text-slate-800" id="sidebar-ngo-phone">+1 (555) 890-1200</p>
                             </div>
                             <div class="col-span-2">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Sector
                                     Assigment</p>
-                                <p class="text-xs font-semibold text-slate-800">Northside & River Delta Jurisdictions
+                                <p class="text-xs font-semibold text-slate-800" id="sidebar-ngo-regions">Northside & River Delta Jurisdictions
                                 </p>
                             </div>
                         </div>
