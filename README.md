@@ -54,3 +54,14 @@ To run this application locally, you will need two terminal windows.
 
 ---
 *For full production deployment instructions, please read `deployment_guide.md`.*
+
+## License
+
+© 2025 Anirudh Kumar
+
+CivicImpact – AI-Powered Public Space Cleanliness Platform
+
+All Rights Reserved.
+
+This repository is provided for educational and portfolio purposes only.
+Unauthorized copying, redistribution, modification, or commercial use is prohibited without written permission from the author.
