@@ -22,7 +22,8 @@ app.use(helmet());
 app.use(compression({ level: 6, threshold: 1024 })); // compress responses > 1 KB
 
 const allowedOrigins = [
-    process.env.FRONTEND_URL,
+    process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, "") : null,
+    "https://fixmycity-portal.vercel.app",
     "http://localhost:8080",
     "http://127.0.0.1:8080"
 ].filter(Boolean);
