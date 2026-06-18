@@ -141,7 +141,7 @@ app.get("/ping", (req, res) => {
 // -----------------------------
 if (process.env.NODE_ENV === "production") {
     const BACKEND_URL = process.env.RENDER_EXTERNAL_URL ||
-        "https://public-space-cleanliness-system-backend.onrender.com";
+        "https://fixmycity-api.onrender.com";
 
     const selfPing = () => {
         https.get(`${BACKEND_URL}/ping`, (res) => {

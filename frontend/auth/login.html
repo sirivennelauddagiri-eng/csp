@@ -3,9 +3,11 @@
 <html class="light" lang="en">
 
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" />
     <meta charset="utf-8" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Unified Login &amp; Registration | CivicImpact</title>
@@ -58,8 +60,8 @@
         }
     </style>
 
-  <meta name="author" content="Anirudh Kumar" />
-  <meta name="project" content="CivicImpact" />
+    <meta name="author" content="Anirudh Kumar" />
+    <meta name="project" content="CivicImpact" />
 </head>
 
 <body
@@ -74,9 +76,12 @@
             </div>
             <div class="relative z-10 space-y-8">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-tr from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-white">
-                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z" fill="currentColor" fill-opacity="0.15"></path>
+                    <div
+                        class="w-10 h-10 bg-gradient-to-tr from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-white">
+                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z"
+                                fill="currentColor" fill-opacity="0.15"></path>
                             <path d="M9 11.5l2.5 2.5 5-5" stroke-width="2.8"></path>
                         </svg>
                     </div>
@@ -120,9 +125,12 @@
             class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-16 bg-white dark:bg-background-dark">
             <div class="w-full max-w-md space-y-8">
                 <div class="lg:hidden flex items-center gap-2 mb-8">
-                    <div class="w-8 h-8 bg-gradient-to-tr from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-white">
-                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z" fill="currentColor" fill-opacity="0.15"></path>
+                    <div
+                        class="w-8 h-8 bg-gradient-to-tr from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-white">
+                            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z"
+                                fill="currentColor" fill-opacity="0.15"></path>
                             <path d="M9 11.5l2.5 2.5 5-5" stroke-width="2.8"></path>
                         </svg>
                     </div>
@@ -325,7 +333,7 @@
             console.log(API_BASE);
 
             try {
-                
+
                 const response = await fetch(API_BASE + endpoint, {
                     method: "POST",
                     headers: {
@@ -350,13 +358,13 @@
             } catch (err) {
                 alert("Server connection failed. Make sure backend is running.");
                 console.log(err);
-                
+
             }
         });
 
         window.onload = function () {
             google.accounts.id.initialize({
-                client_id: "544576440907-eabpf7g2s0an2u354t2qofo58ev33k9o.apps.googleusercontent.com",
+                client_id: "141401561119-8l7oh937lh7ss1ika6jtf681jaadhipc.apps.googleusercontent.com",
                 callback: handleCredentialResponse
             });
 
@@ -375,7 +383,7 @@
             const googleBtnWrap = document.getElementById("googleSignInBtnWrap");
             const originalContent = googleBtnWrap.innerHTML;
             googleBtnWrap.innerHTML = '<div class="flex items-center justify-center space-x-2 text-slate-500"><div class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div><span class="text-sm font-medium">Authenticating...</span></div>';
-            
+
             try {
                 const res = await fetch(`${API_BASE}/api/auth/google`, {
                     method: 'POST',
@@ -385,15 +393,15 @@
                         role: selectedRole
                     })
                 });
-                
+
                 const data = await res.json();
                 if (res.ok && data.success && data.token) {
                     localStorage.setItem("token", data.token);
                     localStorage.setItem("role", data.user.role || selectedRole);
-                    
+
                     // Smooth visual transition before Redirect
                     googleBtnWrap.innerHTML = '<span class="text-emerald-500 font-bold text-sm">✓ Success</span>';
-                    
+
                     setTimeout(() => {
                         if ((data.user.role || selectedRole) === "citizen") {
                             window.location.href = "../pages/citizen.html";

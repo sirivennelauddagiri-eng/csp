@@ -6,7 +6,7 @@ const isLocal = window.location.hostname === 'localhost' ||
 
 export const API_BASE = isLocal
     ? 'http://localhost:5000'
-    : 'https://public-space-cleanliness-system-backend.onrender.com';
+    : 'https://fixmycity-api.onrender.com';
 
 // Expose globally for non-module scripts
 window.API_BASE = API_BASE;

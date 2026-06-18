@@ -18,7 +18,7 @@ const BACKEND_URL = (() => {
                     window.location.hostname === '127.0.0.1';
     return isLocal
         ? 'http://localhost:5000'
-        : 'https://public-space-cleanliness-system-backend.onrender.com';
+        : 'https://fixmycity-api.onrender.com';
 })();
 
 let _socket = null;
