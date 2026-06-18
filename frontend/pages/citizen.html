@@ -2,12 +2,12 @@
 <html class="light" lang="en">
 
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23f97316%22 stroke-width=%222.2%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z%22 fill=%22%23f97316%22 fill-opacity=%220.15%22></path><path d=%22M9 11.5l2.5 2.5 5-5%22 stroke-width=%222.8%22></path></svg>" />
     <meta charset="utf-8" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Citizen Dashboard | CleanCity</title>
+    <title>Citizen Dashboard | FixMyCity</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
@@ -26,7 +26,7 @@
             darkMode: "class",
             theme: {
                 extend: {
-                    colors: { "primary": "#13ec5b", "background-light": "#f6f8f6", "background-dark": "#102216" },
+                    colors: { "primary": "#f97316", "background-light": "#f6f8f6", "background-dark": "#0f172a" },
                     fontFamily: { "display": ["Public Sans", "sans-serif"] },
                     borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }
                 }
@@ -152,8 +152,8 @@
         }
 
         input[type=file]::file-selector-button {
-            background: #13ec5b;
-            color: #111813;
+            background: #f97316;
+            color: #0f172a;
             border: none;
             padding: 6px 14px;
             border-radius: 6px;
@@ -395,14 +395,14 @@
                 </div>
 
                 <!-- AI INSIGHTS PANEL -->
-                <div class="bg-gradient-to-br from-[#111813] to-[#1a3325] rounded-xl p-5 flex flex-col gap-4">
+                <div class="bg-gradient-to-br from-[#0f172a] to-[#1e293b] rounded-xl p-5 flex flex-col gap-4">
                     <div class="flex items-center gap-3">
                         <div class="size-9 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
                             <span class="material-symbols-outlined">psychology</span>
                         </div>
                         <div>
                             <h3 class="text-white font-bold text-sm">AI City Insights</h3>
-                            <p class="text-white/50 text-xs">Powered by CleanCity AI Engine</p>
+                            <p class="text-white/50 text-xs">Powered by FixMyCity AI Engine</p>
                         </div>
                     </div>
                     <p id="aiHotspot"
@@ -936,7 +936,7 @@ import { getSocket } from '../js/socket.js';
                     // Update ring
                     document.getElementById('co2Pct').textContent = progressPercentage + '%';
                     const ring = document.getElementById('co2Ring');
-                    ring.style.stroke = belowGoal ? '#22c55e' : '#13ec5b';
+                    ring.style.stroke = belowGoal ? '#22c55e' : '#f97316';
                     setTimeout(() => {
                         ring.style.strokeDashoffset = 251.2 * (1 - progressPercentage / 100);
                     }, 400);
@@ -1026,8 +1026,8 @@ import { getSocket } from '../js/socket.js';
 
             function addMapPin(issue) {
                 if (!issue.latitude || !issue.longitude) return;
-                const colors = { High: '#ef4444', Medium: '#f97316', Low: '#13ec5b' };
-                const color = colors[issue.severity] || '#13ec5b';
+                 const colors = { High: '#ef4444', Medium: '#f97316', Low: '#22c55e' };
+                 const color = colors[issue.severity] || '#22c55e';
                 const dateStr = issue.dateReported
                     ? new Date(issue.dateReported).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
                     : '—';
@@ -1152,7 +1152,7 @@ import { getSocket } from '../js/socket.js';
             function showDetail(id) {
                 const issue = allIssues.find(i => String(i._id) === id);
                 if (!issue) return;
-                const colors = { High: '#ef4444', Medium: '#facc15', Low: '#13ec5b' };
+                 const colors = { High: '#ef4444', Medium: '#facc15', Low: '#22c55e' };
                 document.getElementById('detailContent').innerHTML = `
     ${issue.imageUrl ? `<img src="${issue.imageUrl}" class="w-full h-40 object-cover rounded-xl mb-4"/>` : ''}
     <h3 class="font-bold text-base mb-1">${issue.title}</h3>
@@ -1164,7 +1164,7 @@ import { getSocket } from '../js/socket.js';
       </div>
       <div class="bg-background-light dark:bg-white/5 rounded-lg p-3">
         <p class="text-[10px] font-bold text-[#61896f] uppercase">Severity</p>
-        <p class="text-sm font-bold mt-0.5" style="color:${colors[issue.severity] || '#13ec5b'}">${issue.severity}</p>
+         <p class="text-sm font-bold mt-0.5" style="color:${colors[issue.severity] || '#22c55e'}">${issue.severity}</p>
       </div>
       <div class="bg-background-light dark:bg-white/5 rounded-lg p-3">
         <p class="text-[10px] font-bold text-[#61896f] uppercase">AI Confidence</p>
@@ -1229,7 +1229,7 @@ import { getSocket } from '../js/socket.js';
                     try {
                         const geoRes = await fetch(
                             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${reportLat}&lon=${reportLng}&zoom=18&addressdetails=1`,
-                            { headers: { 'Accept-Language': 'en', 'User-Agent': 'CleanCityPortal/1.0' } }
+                             { headers: { 'Accept-Language': 'en', 'User-Agent': 'FixMyCityPortal/1.0' } }
                         );
                         const geoData = await geoRes.json();
                         const addr = geoData.address || {};

@@ -2,9 +2,11 @@
 <html class="light" lang="en">
 
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23f97316%22 stroke-width=%222.2%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z%22 fill=%22%23f97316%22 fill-opacity=%220.15%22></path><path d=%22M9 11.5l2.5 2.5 5-5%22 stroke-width=%222.8%22></path></svg>" />
     <meta charset="utf-8" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Social Projects & Donations - CivicAction</title>
@@ -21,9 +23,9 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#13ec5b",
+                        "primary": "#f97316",
                         "background-light": "#f6f8f6",
-                        "background-dark": "#102216",
+                        "background-dark": "#0f172a",
                     },
                     fontFamily: {
                         "display": ["Public Sans"]
@@ -120,8 +122,8 @@
         }
     </style>
 
-  <meta name="author" content="Anirudh Kumar" />
-  <meta name="project" content="CivicImpact" />
+    <meta name="author" content="Anirudh Kumar" />
+    <meta name="project" content="CivicImpact" />
 </head>
 
 <body
@@ -303,7 +305,7 @@
     <div id="toast-container"></div>
 
     <script type="module">
-import { API_BASE } from '../js/apiConfig.js';
+        import { API_BASE } from '../js/apiConfig.js';
 
         // API Base URL
         const API_URL = `${API_BASE}/api`;
@@ -584,21 +586,22 @@ import { API_BASE } from '../js/apiConfig.js';
                 }
             });
         }
-    
-window.logout = logout;
-window.showToast = showToast;
-window.fetchImpactSummary = fetchImpactSummary;
-window.fetchProjects = fetchProjects;
-window.fetchRecentDonations = fetchRecentDonations;
-window.createProjectCard = createProjectCard;
-window.setCategory = setCategory;
-window.debounceFilter = debounceFilter;
-window.renderChart = renderChart;
-</script>
 
-  <footer style="text-align: center; padding: 15px; font-size: 13px; color: #666; background-color: #f8f9fa; border-top: 1px solid #eaeaea; width: 100%; position: relative; z-index: 50;">
-    &copy; 2025 CivicImpact | Developed by Anirudh Kumar | All Rights Reserved
-  </footer>
+        window.logout = logout;
+        window.showToast = showToast;
+        window.fetchImpactSummary = fetchImpactSummary;
+        window.fetchProjects = fetchProjects;
+        window.fetchRecentDonations = fetchRecentDonations;
+        window.createProjectCard = createProjectCard;
+        window.setCategory = setCategory;
+        window.debounceFilter = debounceFilter;
+        window.renderChart = renderChart;
+    </script>
+
+    <footer
+        style="text-align: center; padding: 15px; font-size: 13px; color: #666; background-color: #f8f9fa; border-top: 1px solid #eaeaea; width: 100%; position: relative; z-index: 50;">
+        &copy; 2025 CivicImpact | Developed by Anirudh Kumar | All Rights Reserved
+    </footer>
 </body>
 
 </html>

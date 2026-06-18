@@ -1,6 +1,6 @@
 import { API_BASE } from '../js/apiConfig.js';
 /**
- * CleanCity — Global Shared Header Component
+ * FixMyCity — Global Shared Header Component
  * Inject into any citizen page with:
  *   <div id="app-header"></div>
  *   <script src="../components/header.js"></script>
@@ -35,10 +35,13 @@ import { API_BASE } from '../js/apiConfig.js';
         <div class="flex items-center gap-6">
             <!-- New Eco-friendly Branding -->
             <a href="citizen.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
-                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
-                    <span class="text-white text-lg leading-none mt-[-2px]">🌿</span>
+                <div class="w-8 h-8 bg-gradient-to-tr from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-500/20">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-white">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z" fill="currentColor" fill-opacity="0.15"></path>
+                        <path d="M9 11.5l2.5 2.5 5-5" stroke-width="2.8"></path>
+                    </svg>
                 </div>
-                <span class="font-bold text-lg text-green-600 dark:text-green-400">CleanCity</span>
+                <span class="font-bold text-lg text-orange-500 dark:text-orange-400">FixMyCity</span>
             </a>
             <nav class="hidden lg:flex items-center gap-7">
                 <a class="${navClass('citizen')}" href="citizen.html">Dashboard</a>
@@ -63,7 +66,7 @@ import { API_BASE } from '../js/apiConfig.js';
             <div id="gh-avatar"
                 onclick="openProfilePanel()"
                 title="View Profile"
-                class="flex items-center justify-center rounded-full size-9 border-2 border-primary cursor-pointer hover:shadow-[0_0_15px_rgba(19,236,91,0.4)] transition-shadow overflow-hidden bg-primary/20 select-none"
+                class="flex items-center justify-center rounded-full size-9 border-2 border-primary cursor-pointer hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-shadow overflow-hidden bg-primary/20 select-none"
                 aria-label="Open profile panel">
                 <span id="gh-avatar-initial" class="text-sm font-black text-primary hidden"></span>
             </div>
@@ -193,7 +196,7 @@ import { API_BASE } from '../js/apiConfig.js';
     <style id="gh-panel-styles">
         #profilePanel::-webkit-scrollbar { width: 4px; }
         #profilePanel::-webkit-scrollbar-track { background: transparent; }
-        #profilePanel::-webkit-scrollbar-thumb { background: rgba(19,236,91,0.25); border-radius: 9999px; }
+        #profilePanel::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.25); border-radius: 9999px; }
     </style>`;
 
     // ─── Edit Profile Modal HTML ──────────────────────────────────────────

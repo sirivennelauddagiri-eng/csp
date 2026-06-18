@@ -87,20 +87,20 @@ function calcScore(totalKg) {
 }
 
 // ── Comprehensive Project Knowledge Base ──────────────────────────────────────
-// Covers: CleanCity Portal project, all pages, features, calculators,
+// Covers: FixMyCity Portal project, all pages, features, calculators,
 //         carbon science, sustainability tips, tech stack, auth, etc.
 // ─────────────────────────────────────────────────────────────────────────────
 const CHAT_KB = [
 
     // ── PROJECT OVERVIEW ──────────────────────────────────────────────────────
     {
-        keywords: ["what is this project", "what is cleancity", "about this app", "about the project", "what does this app do", "purpose of this", "what can i do here"],
-        reply: "🌿 CleanCity Portal is a full-stack civic sustainability platform. It lets citizens report cleanliness issues, track their carbon footprint, earn eco-rewards, join community campaigns, and collaborate on green projects. The platform is built with HTML/CSS/JS on the frontend and Node.js + Express + MongoDB on the backend."
+        keywords: ["what is this project", "what is fixmycity", "about this app", "about the project", "what does this app do", "purpose of this", "what can i do here"],
+        reply: "🌿 FixMyCity Portal is a full-stack civic sustainability platform. It lets citizens report cleanliness issues, track their carbon footprint, earn eco-rewards, join community campaigns, and collaborate on green projects. The platform is built with HTML/CSS/JS on the frontend and Node.js + Express + MongoDB on the backend."
     },
 
     {
         keywords: ["how does it work", "how to use", "getting started", "how do i start", "what are the features", "main features"],
-        reply: "📋 CleanCity Portal has 5 main sections:\n1️⃣ Dashboard – your personal stats and recent activity\n2️⃣ Community – join campaigns and view leaderboards\n3️⃣ Rewards – redeem eco-points for badges and prizes\n4️⃣ Projects – collaborate on local green projects\n5️⃣ Impact – Carbon Footprint Tracker + AI Advisor\nLog in first to access all features."
+        reply: "📋 FixMyCity Portal has 5 main sections:\n1️⃣ Dashboard – your personal stats and recent activity\n2️⃣ Community – join campaigns and view leaderboards\n3️⃣ Rewards – redeem eco-points for badges and prizes\n4️⃣ Projects – collaborate on local green projects\n5️⃣ Impact – Carbon Footprint Tracker + AI Advisor\nLog in first to access all features."
     },
 
     // ── AUTH / LOGIN ──────────────────────────────────────────────────────────
@@ -274,7 +274,7 @@ const CHAT_KB = [
     // ── TECH STACK ────────────────────────────────────────────────────────────
     {
         keywords: ["tech stack", "technology", "built with", "frontend", "backend", "database", "mongodb", "express", "nodejs", "node", "tailwind", "chartjs"],
-        reply: "⚙️ CleanCity Portal tech stack:\n• Frontend: HTML5, Tailwind CSS (CDN), Vanilla JavaScript, Chart.js\n• Backend: Node.js + Express.js\n• Database: MongoDB Atlas (cloud)\n• Auth: JWT (jsonwebtoken), bcrypt for hashing\n• Fonts: Public Sans (Google Fonts), Material Symbols Outlined\n• Frontend served via: npx serve on port 5500\n• Backend API on: port 3000"
+        reply: "⚙️ FixMyCity Portal tech stack:\n• Frontend: HTML5, Tailwind CSS (CDN), Vanilla JavaScript, Chart.js\n• Backend: Node.js + Express.js\n• Database: MongoDB Atlas (cloud)\n• Auth: JWT (jsonwebtoken), bcrypt for hashing\n• Fonts: Public Sans (Google Fonts), Material Symbols Outlined\n• Frontend served via: npx serve on port 5500\n• Backend API on: port 3000"
     },
 
     {
@@ -312,17 +312,17 @@ const CHAT_KB = [
     // ── CHAT ITSELF ───────────────────────────────────────────────────────────
     {
         keywords: ["hello", "hi", "hey", "good morning", "good evening", "howdy", "hola"],
-        reply: "👋 Hello! I'm the CleanCity AI Assistant. I can help you with:\n• Understanding your carbon footprint\n• Using the calculators and features\n• Getting reduction tips\n• Learning about the project and tech stack\n\nJust ask me anything!"
+        reply: "👋 Hello! I'm the FixMyCity AI Assistant. I can help you with:\n• Understanding your carbon footprint\n• Using the calculators and features\n• Getting reduction tips\n• Learning about the project and tech stack\n\nJust ask me anything!"
     },
 
     {
         keywords: ["thank you", "thanks", "thx", "great", "awesome", "helpful", "good job"],
-        reply: "🌱 You're welcome! Every step towards a lower carbon footprint matters. Keep exploring the Impact page and try the AI Analysis for a personalised reduction plan. Together we can make CleanCity greener! 🌍"
+        reply: "🌱 You're welcome! Every step towards a lower carbon footprint matters. Keep exploring the Impact page and try the AI Analysis for a personalised reduction plan. Together we can make FixMyCity greener! 🌍"
     },
 
     {
         keywords: ["who made this", "who built this", "developer", "creator", "made by"],
-        reply: "👨‍💻 CleanCity Portal is a student/developer project built as a full-stack civic tech platform. It uses Node.js, Express, MongoDB, and a Tailwind CSS frontend. The AI Carbon Advisor was designed to work fully offline — no external AI API keys required!"
+        reply: "👨‍💻 FixMyCity Portal is a student/developer project built as a full-stack civic tech platform. It uses Node.js, Express, MongoDB, and a Tailwind CSS frontend. The AI Carbon Advisor was designed to work fully offline — no external AI API keys required!"
     },
 ];
 
@@ -368,7 +368,7 @@ function chatResponse(question) {
         }
     }
 
-    return "🤔 I don't have a specific answer for that yet, but here's what I can help with:\n• Carbon footprint calculations (Home, Travel, Flying, Food, Expenditure)\n• Understanding the CleanCity Portal features\n• How to use the Dashboard, Community, Rewards, Projects, and Impact pages\n• Carbon reduction tips and the AI Reduction Plan\n\nTry rephrasing your question, or ask something like 'How does the travel calculator work?' or 'What is the safe carbon limit?'";
+    return "🤔 I don't have a specific answer for that yet, but here's what I can help with:\n• Carbon footprint calculations (Home, Travel, Flying, Food, Expenditure)\n• Understanding the FixMyCity Portal features\n• How to use the Dashboard, Community, Rewards, Projects, and Impact pages\n• Carbon reduction tips and the AI Reduction Plan\n\nTry rephrasing your question, or ask something like 'How does the travel calculator work?' or 'What is the safe carbon limit?'";
 }
 
 // ── Main advisor function ─────────────────────────────────────────────────────

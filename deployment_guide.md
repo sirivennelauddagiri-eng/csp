@@ -1,6 +1,6 @@
-# CleanCity Portal - Production Deployment Guide
+# FixMyCity Portal - Production Deployment Guide
 
-This guide will walk you through shipping the CleanCity Portal system reliably to the internet using **Vercel** (Frontend), **Render** (Backend API), and **MongoDB Atlas** (Database).
+This guide will walk you through shipping the FixMyCity Portal system reliably to the internet using **Vercel** (Frontend), **Render** (Backend API), and **MongoDB Atlas** (Database).
 
 ---
 
@@ -35,7 +35,7 @@ Because of this separation, we will deploy the `/frontend` directory to Vercel, 
 2. Click **New +** and select **Web Service**.
 3. Choose **Build and deploy from a Git repository** and connect your GitHub repo.
 4. **Configuration Settings**:
-   - **Name**: `cleancity-api` (or similar)
+   - **Name**: `fixmycity-api` (or similar)
    - **Region**: Choose one closest to you.
    - **Branch**: `master` or `main`.
    - **Root Directory**: `backend` *(⚠️ Extremely Important: tell Render the backend code lives here)*
@@ -46,9 +46,9 @@ Because of this separation, we will deploy the `/frontend` directory to Vercel, 
    Scroll down to Advanced > Environment Variables and click **Add Environment Variable**:
    - `MONGO_URI`: *(Paste the MongoDB Atlas connection string from step 2)*
    - `JWT_SECRET`: *(A long random string, e.g., `512bd9...`)*
-   - `FRONTEND_URL`: Leave blank for now, we will come back to fill this once Vercel is set up. Example later: `https://my-cleancity-app.vercel.app`
+   - `FRONTEND_URL`: Leave blank for now, we will come back to fill this once Vercel is set up. Example later: `https://my-fixmycity-app.vercel.app`
 6. Click **Create Web Service**.
-7. Wait ~2 minutes for the build to complete. Render will provide a URL like `https://cleancity-api-xyz.onrender.com`. Copy this URL.
+7. Wait ~2 minutes for the build to complete. Render will provide a URL like `https://fixmycity-api-xyz.onrender.com`. Copy this URL.
 
 ---
 
@@ -58,7 +58,7 @@ Because of this separation, we will deploy the `/frontend` directory to Vercel, 
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard).
 2. Click **Add New...** > **Project** and import your GitHub repository.
 3. In the **Configure Project** section:
-   - **Project Name**: `cleancity-portal`
+   - **Project Name**: `fixmycity-portal`
    - **Framework Preset**: `Other`
    - **Root Directory**: `frontend` *(⚠️ Click Edit and select the `frontend` folder)*
    - **Build Command**: *(Leave empty/override, we just want static serving)*
@@ -66,9 +66,9 @@ Because of this separation, we will deploy the `/frontend` directory to Vercel, 
 4. **Environment Variables**:
    Expand the Environment Variables section and add:
    - `NEXT_PUBLIC_API_URL`: *(Paste the Render backend URL from step 3)*
-   It should look like: `https://cleancity-api-xyz.onrender.com`. **Do not include a trailing slash!**
+   It should look like: `https://fixmycity-api-xyz.onrender.com`. **Do not include a trailing slash!**
 5. Click **Deploy**.
-6. Wait ~30 seconds. Vercel will give you a domain like `https://cleancity-portal.vercel.app`. Copy this domain.
+6. Wait ~30 seconds. Vercel will give you a domain like `https://fixmycity-portal.vercel.app`. Copy this domain.
 
 ---
 
@@ -77,10 +77,10 @@ Because of this separation, we will deploy the `/frontend` directory to Vercel, 
 Now that we know the final Vercel frontend URL, we must tell our secure Render backend to allow traffic from it. 
 
 1. Go back to your [Render Dashboard](https://dashboard.render.com).
-2. Select your `cleancity-api` web service.
+2. Select your `fixmycity-api` web service.
 3. Go to **Environment** on the left menu.
 4. Add or update the variable:
-   - `FRONTEND_URL`: *(Paste your Vercel URL, e.g., `https://cleancity-portal.vercel.app`)*
+   - `FRONTEND_URL`: *(Paste your Vercel URL, e.g., `https://fixmycity-portal.vercel.app`)*
 5. Click **Save Changes**. Render will automatically quickly restart the service to apply the CORS rule.
 
 ---

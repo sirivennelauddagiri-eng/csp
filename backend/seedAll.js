@@ -11,10 +11,9 @@ const User = require('./models/User');
 const NGO = require('./models/NGO');
 const Issue = require('./models/Issue');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cleanliness';
+const MONGO_URI = process.env.MONGO_URI || 'MONGO_URI=mongodb+srv://siri_11:siri0011@cluster0....';
 
 // ─── SEED DATA ────────────────────────────────────────────────────────────────
-
 const AUTHORITY_USERS = [
     {
         name: 'GreenForce India',

@@ -243,7 +243,7 @@ exports.getTrending = async (req, res) => {
         });
 
         let sortedTags = Object.entries(tags).sort((a, b) => b[1] - a[1]).map(e => e[0]);
-        if (!sortedTags.length) sortedTags = ['#CleanCity', '#EcoAction', '#CommunitySafety'];
+        if (!sortedTags.length) sortedTags = ['#FixMyCity', '#EcoAction', '#CommunitySafety'];
 
         res.json({ success: true, trending: sortedTags.slice(0, 5) });
     } catch (error) {

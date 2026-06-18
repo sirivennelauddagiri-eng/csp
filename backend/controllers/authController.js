@@ -70,7 +70,9 @@ exports.login = async (req, res) => {
         );
 
         // Fetch issues reported count
-        const issuesReported = await require("../models/Issue").countDocuments({ reportedBy: user._id });
+        const issuesReported = await require("../models/Issue").countDocuments({
+            $or: [{ userId: user._id }, { reportedBy: user._id }]
+        });
 
         // Warm the me-cache immediately so the first /auth/me after login
         // is served from memory rather than hitting the DB again
@@ -103,7 +105,9 @@ exports.getMe = async (req, res) => {
         }
 
         // Add issuesReported
-        const issuesReported = await require("../models/Issue").countDocuments({ reportedBy: userId });
+        const issuesReported = await require("../models/Issue").countDocuments({
+            $or: [{ userId: userId }, { reportedBy: userId }]
+        });
         user.issuesReported = issuesReported;
 
         meCache.set(userId, { data: user, expiresAt: Date.now() + ME_TTL_MS });

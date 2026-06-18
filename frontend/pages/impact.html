@@ -2,12 +2,12 @@
 <html class="light" lang="en">
 
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍃</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23f97316%22 stroke-width=%222.2%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c0 2-.52 3.5-1.6 9.2A7 7 0 0 1 11 20z%22 fill=%22%23f97316%22 fill-opacity=%220.15%22></path><path d=%22M9 11.5l2.5 2.5 5-5%22 stroke-width=%222.8%22></path></svg>" />
     <meta charset="utf-8" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Carbon Footprint Tracker | CleanCity Portal</title>
+    <title>Carbon Footprint Tracker | FixMyCity Portal</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
@@ -21,9 +21,9 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#13ec5b",
+                        "primary": "#f97316",
                         "background-light": "#f6f8f6",
-                        "background-dark": "#102216",
+                        "background-dark": "#0f172a",
                     },
                     fontFamily: { "display": ["Public Sans", "sans-serif"] },
                     borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
@@ -41,8 +41,8 @@
         }
 
         .tab-btn.active {
-            background: #13ec5b;
-            color: #102216;
+            background: #f97316;
+            color: #0f172a;
             font-weight: 700;
         }
 
@@ -55,7 +55,7 @@
         }
 
         input[type=range] {
-            accent-color: #13ec5b;
+            accent-color: #f97316;
         }
 
         .score-ring {
@@ -130,7 +130,7 @@
                     <div class="relative flex items-center justify-center w-32 h-32">
                         <svg class="w-32 h-32 -rotate-90" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="45" fill="transparent" stroke="#dbe6df" stroke-width="8" />
-                            <circle id="scoreRing" cx="50" cy="50" r="45" fill="transparent" stroke="#13ec5b"
+                            <circle id="scoreRing" cx="50" cy="50" r="45" fill="transparent" stroke="#f97316"
                                 stroke-width="8" stroke-linecap="round"
                                 style="stroke-dasharray: 283; stroke-dashoffset: 170;" />
                         </svg>
@@ -510,7 +510,7 @@
 
                 <!-- AI Advisor CTA Banner -->
                 <div
-                    class="bg-gradient-to-r from-[#102216] to-[#0d3320] rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-primary/30">
+                    class="bg-gradient-to-r from-[#0f172a] to-[#1e293b] rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border border-primary/30">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                             <span class="material-symbols-outlined text-primary text-2xl">psychology</span>
@@ -522,7 +522,7 @@
                         </div>
                     </div>
                     <button id="aiAnalyzeBtn" onclick="getAIAdvice()"
-                        class="shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-[#102216] font-black text-sm hover:bg-primary/80 transition-all active:scale-95">
+                        class="shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-[#0f172a] font-black text-sm hover:bg-primary/80 transition-all active:scale-95">
                         <span class="material-symbols-outlined text-lg">auto_awesome</span>
                         Analyse My Footprint
                     </button>
@@ -569,14 +569,14 @@
                                 <div id="aiCategoryBars" class="flex flex-col gap-2"></div>
                             </div>
                         </div>
-                        <div class="bg-[#102216] rounded-xl p-6 flex flex-col items-center justify-center gap-3">
+                        <div class="bg-[#0f172a] rounded-xl p-6 flex flex-col items-center justify-center gap-3">
                             <p class="text-white/60 text-xs font-bold uppercase tracking-wider text-center">AI
                                 Sustainability Score</p>
                             <div class="relative w-32 h-32">
                                 <svg class="w-32 h-32 -rotate-90" viewBox="0 0 100 100">
                                     <circle cx="50" cy="50" r="42" fill="transparent" stroke="rgba(255,255,255,0.1)"
                                         stroke-width="8" />
-                                    <circle id="aiScoreRing" cx="50" cy="50" r="42" fill="transparent" stroke="#13ec5b"
+                                    <circle id="aiScoreRing" cx="50" cy="50" r="42" fill="transparent" stroke="#f97316"
                                         stroke-width="8" stroke-linecap="round"
                                         style="stroke-dasharray:264;stroke-dashoffset:264;transition:stroke-dashoffset 1.2s ease;" />
                                 </svg>
@@ -639,7 +639,7 @@
                                     class="flex-1 bg-background-light dark:bg-white/5 border border-[#dbe6df] dark:border-white/20 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary"
                                     onkeydown="if(event.key==='Enter') chatSend()">
                                 <button onclick="chatSend()"
-                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-[#102216] hover:bg-primary/80 transition-all">
+                                    class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-[#0f172a] hover:bg-primary/80 transition-all">
                                     <span class="material-symbols-outlined text-base">send</span>
                                 </button>
                             </div>
@@ -660,7 +660,7 @@
                         </div>
                         <!-- Offset CTA -->
                         <div
-                            class="bg-gradient-to-br from-[#0d3320] to-[#102216] rounded-xl p-5 flex flex-col gap-4 border border-primary/20">
+                            class="bg-gradient-to-br from-[#0f172a] to-[#1e293b] rounded-xl p-5 flex flex-col gap-4 border border-primary/20">
                             <div class="flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">eco</span>
                                 <h3 class="font-black text-white text-sm">Carbon Offset Options</h3>
@@ -704,7 +704,7 @@
         <!-- Toast -->
         <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
             <div
-                class="bg-[#102216] text-primary border border-primary/30 rounded-xl px-5 py-3 text-sm font-bold shadow-xl flex items-center gap-2">
+                class="bg-[#0f172a] text-primary border border-primary/30 rounded-xl px-5 py-3 text-sm font-bold shadow-xl flex items-center gap-2">
                 <span class="material-symbols-outlined text-base">check_circle</span>
                 <span id="toastMsg"></span>
             </div>
@@ -725,9 +725,9 @@ import { API_BASE } from '../js/apiConfig.js';
             type: 'doughnut',
             data: {
                 labels: ['Home', 'Travel', 'Flying', 'Food', 'Expenditure'],
-                datasets: [{ data: [0, 0, 0, 0, 0], backgroundColor: ['#13ec5b', '#0da33e', '#094d1c', '#4ade80', '#bbf7d0'], borderWidth: 0 }]
+                datasets: [{ data: [0, 0, 0, 0, 0], backgroundColor: ['#f97316', '#ea580c', '#facc15', '#3b82f6', '#64748b'], borderWidth: 0 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#61896f', font: { size: 11, weight: '600' } } } } }
+            options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#64748b', font: { size: 11, weight: '600' } } } } }
         });
 
         const months = ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
@@ -736,8 +736,8 @@ import { API_BASE } from '../js/apiConfig.js';
             data: {
                 labels: months,
                 datasets: [
-                    { label: 'Your CO₂ (kg)', data: [320, 290, 310, 350, 280, 0], borderColor: '#13ec5b', backgroundColor: 'rgba(19,236,91,0.1)', tension: 0.4, fill: true, borderWidth: 2, pointBackgroundColor: '#13ec5b' },
-                    { label: 'Global Avg', data: [400, 400, 400, 400, 400, 400], borderColor: '#61896f', borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0, fill: false }
+                    { label: 'Your CO₂ (kg)', data: [320, 290, 310, 350, 280, 0], borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.1)', tension: 0.4, fill: true, borderWidth: 2, pointBackgroundColor: '#f97316' },
+                    { label: 'Global Avg', data: [400, 400, 400, 400, 400, 400], borderColor: '#64748b', borderDash: [5, 5], borderWidth: 1.5, pointRadius: 0, fill: false }
                 ]
             },
             options: {
@@ -942,19 +942,19 @@ import { API_BASE } from '../js/apiConfig.js';
 
             const ring = document.getElementById('aiScoreRing');
             ring.style.strokeDashoffset = 264 - (264 * a.sustainability_score / 100);
-            ring.style.stroke = a.sustainability_score >= 60 ? '#13ec5b' : a.sustainability_score >= 35 ? '#f59e0b' : '#ef4444';
+            ring.style.stroke = a.sustainability_score >= 60 ? '#22c55e' : a.sustainability_score >= 35 ? '#f59e0b' : '#ef4444';
 
             const ps = data.potential_savings;
             set('aiNewScore', 'Score → ' + ps.achievable_score);
             set('aiTotalSavings', 'Save up to ' + ps.kg_month + ' kg/month (' + ps.tons_year + ' t/yr)');
 
-            const barColors = { home: '#13ec5b', travel: '#0da33e', flying: '#4ade80', food: '#bbf7d0', expenditure: '#86efac' };
+            const barColors = { home: '#f97316', travel: '#ea580c', flying: '#facc15', food: '#3b82f6', expenditure: '#64748b' };
             const bars = [...data.category_breakdown].sort((x, y) => y.share_pct - x.share_pct);
             document.getElementById('aiCategoryBars').innerHTML = bars.map(c => `
                 <div class="flex items-center gap-3 text-xs">
                     <span class="w-24 shrink-0 text-[#61896f] dark:text-white/60 font-bold capitalize">${c.icon} ${c.category}</span>
                     <div class="flex-1 bg-background-light dark:bg-white/10 rounded-full h-2 overflow-hidden">
-                        <div class="h-2 rounded-full" style="width:${c.share_pct}%;background:${barColors[c.category] || '#13ec5b'};transition:width 0.8s ease;"></div>
+                        <div class="h-2 rounded-full" style="width:${c.share_pct}%;background:${barColors[c.category] || '#f97316'};transition:width 0.8s ease;"></div>
                     </div>
                     <span class="w-16 text-right font-black text-[#111813] dark:text-white">${c.kg_month} kg</span>
                     <span class="w-8 text-right text-[#61896f]">${c.share_pct}%</span>
@@ -994,7 +994,7 @@ import { API_BASE } from '../js/apiConfig.js';
                     ${i < roadmap.length - 1 ? '<div class="hidden md:block absolute top-5 left-1/2 w-full h-0.5 bg-primary/20 z-0"></div>' : ''}
                     <div class="relative z-10 flex flex-col items-center text-center gap-2">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-md
-                            ${atGoal ? 'bg-primary text-[#102216]' : 'bg-white dark:bg-white/10 border-2 border-primary/40 text-[#111813] dark:text-white'}">
+                            ${atGoal ? 'bg-primary text-[#0f172a]' : 'bg-white dark:bg-white/10 border-2 border-primary/40 text-slate-900 dark:text-white'}">
                             ${atGoal ? '🏁' : step.step}
                         </div>
                         <p class="text-[10px] font-black text-[#111813] dark:text-white leading-tight">${step.milestone}</p>

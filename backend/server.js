@@ -21,11 +21,28 @@ connectDB();
 app.use(helmet());
 app.use(compression({ level: 6, threshold: 1024 })); // compress responses > 1 KB
 
-app.use(cors({
-    origin: process.env.FRONTEND_URL || "*",
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    "http://localhost:8080",
+    "http://127.0.0.1:8080"
+].filter(Boolean);
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+            return callback(null, true);
+        }
+        if (process.env.NODE_ENV !== "production" && (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:"))) {
+            return callback(null, true);
+        }
+        return callback(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
@@ -35,7 +52,16 @@ app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 // -----------------------------
 const io = new Server(server, {
     cors: {
-        origin: process.env.FRONTEND_URL || "*",
+        origin: function (origin, callback) {
+            if (!origin) return callback(null, true);
+            if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+                return callback(null, true);
+            }
+            if (process.env.NODE_ENV !== "production" && (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:"))) {
+                return callback(null, true);
+            }
+            return callback(new Error("Not allowed by CORS"));
+        },
         methods: ["GET", "POST"]
     },
     // Tune transports: try WebSocket first, fall back to polling

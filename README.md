@@ -1,8 +1,8 @@
-# CleanCity Portal / Public Space Cleanliness System
+# FixMyCity Portal / Public Space Cleanliness System
 
 ## 🌍 About The Project
 
-The **CleanCity Portal** (also referred to as the Public Space Cleanliness System) is a comprehensive web platform designed to empower citizens, NGOs, and local authorities to collaborate on maintaining and improving the cleanliness of public spaces. 
+The **FixMyCity Portal** (also referred to as the Public Space Cleanliness System) is a comprehensive web platform designed to empower citizens, NGOs, and local authorities to collaborate on maintaining and improving the cleanliness of public spaces. 
 
 Through real-time reporting, AI integration, community networking, and a reward system, this platform facilitates an end-to-end workflow for tracking, resolving, and auditing civic cleanliness issues.
 
@@ -55,13 +55,3 @@ To run this application locally, you will need two terminal windows.
 ---
 *For full production deployment instructions, please read `deployment_guide.md`.*
 
-## License
-
-© 2025 Anirudh Kumar
-
-CivicImpact – AI-Powered Public Space Cleanliness Platform
-
-All Rights Reserved.
-
-This repository is provided for educational and portfolio purposes only.
-Unauthorized copying, redistribution, modification, or commercial use is prohibited without written permission from the author.
